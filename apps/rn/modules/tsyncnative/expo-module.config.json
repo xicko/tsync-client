@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["tsyncnativeModule"]
+  },
+  "android": {
+    "modules": ["xicko.modules.tsyncnative.tsyncnativeModule"]
+  }
+}

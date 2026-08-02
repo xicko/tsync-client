@@ -1,0 +1,17 @@
+# Build outputs
+node_modules/
+.expo/
+.tamagui/
+dist/
+dist.zip
+build-*.apk
+
+# Android and iOS build artifacts
+android/build/
+android/app/build/
+ios/build/
+modules/**/android/build/
+modules/**/ios/build/
+
+# Package manager files
+package-lock.json

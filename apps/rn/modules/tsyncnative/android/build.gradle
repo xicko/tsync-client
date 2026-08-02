@@ -1,0 +1,47 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
+
+group = 'xicko.modules.tsyncnative'
+version = '0.7.9'
+
+android {
+  namespace "xicko.modules.tsyncnative"
+  defaultConfig {
+    versionCode 1
+    versionName "0.7.9"
+  }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+  def libsuVersion = '6.0.0'
+
+  implementation 'com.google.android.gms:play-services-location:21.3.0'
+  implementation "com.tencent:mmkv-static:2.4.0"
+
+  implementation "io.ktor:ktor-client-core:2.3.7"
+  implementation "io.ktor:ktor-client-cio:2.3.7"
+
+  implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+
+  implementation "io.ktor:ktor-client-content-negotiation:2.3.7"
+  implementation "io.ktor:ktor-serialization-kotlinx-json:2.3.7"
+
+  // The core module that provides APIs to a shell
+  implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
+
+  // Optional: APIs for creating root services. Depends on ":core"
+  implementation "com.github.topjohnwu.libsu:service:${libsuVersion}"
+
+  // Optional: Provides remote file system support
+  implementation "com.github.topjohnwu.libsu:nio:${libsuVersion}"
+
+}

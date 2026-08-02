@@ -1,0 +1,9 @@
+{
+  "name": "@shared/theme",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "peerDependencies": {
+    "tamagui": "1.127.1",
+    "@tamagui/config": "1.127.1"
+  }
+}

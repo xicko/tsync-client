@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "ignoreDeprecations": "5.0",
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./apps/rn/*"]
+    }
+  },
+  "include": ["apps/electron/**/*", "apps/rn/**/*", "packages/types/**/*"],
+  "exclude": ["**/node_modules", "**/dist", "**/.expo", "**/.vite", "**/build"]
+}

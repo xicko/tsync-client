@@ -1,0 +1,95 @@
+{
+  "expo": {
+    "name": "0tsync",
+    "slug": "tsync",
+    "version": "1.0.0",
+    "scheme": "tsync",
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "@rnrepo/expo-config-plugin",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": false,
+          "faceIDPermission": "Allow tsync to access your Face ID biometric data."
+        }
+      ],
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0",
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "parentTheme": "Default",
+            "enforceNavigationBarContrast": false
+          }
+        }
+      ],
+      "expo-audio",
+      "expo-background-task",
+      [
+        "expo-asset",
+        {
+          "assets": ["assets"]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true,
+      "inlineModules": {
+        "watchedDirectories": ["app", "features", "components"]
+      }
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.xicko.tsync"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#141414"
+      },
+      "permissions": [
+        "android.permission.QUERY_ALL_PACKAGES",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.USE_FULL_SCREEN_INTENT",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.FOREGROUND_SERVICE"
+      ],
+      "package": "com.xicko.tsync"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f4113b22-7041-46e5-810f-4a897670b1f4"
+      }
+    }
+  }
+}

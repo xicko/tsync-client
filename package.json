@@ -1,0 +1,32 @@
+{
+  "name": "tsync-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "npx tsc --noEmit",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.26.2",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "react-native": "0.85.3",
+    "@react-native/metro-config": "0.85.3"
+  },
+  "peerDependencies": {
+    "react-native-reanimated": "4.3.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-native": "0.85.3",
+      "@react-native/metro-config": "0.85.3",
+      "react-native-worklets": "0.8.3",
+      "react-native-svg": "15.15.4",
+      "vite>esbuild": "^0.28.1"
+    }
+  }
+}

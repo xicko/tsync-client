@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 10.1.1"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "testdevice": {
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "store"
+      },
+      "distribution": "internal",
+      "channel": "testdevice-channel",
+      "developmentClient": false
+    },
+    "production": {
+      "channel": "production"
+    },
+    "apkRelease": {
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
