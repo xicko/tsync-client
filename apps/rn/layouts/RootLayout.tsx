@@ -15,7 +15,6 @@ import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/theme/toastConfig';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { Sheets } from '@/components/Sheets/Sheets';
-import { NotificationClickEvent, OneSignal } from 'react-native-onesignal';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import tsyncnativeModule from '@/modules/tsyncnative';
 import Constants from 'expo-constants';
@@ -23,12 +22,16 @@ import { useThemeStore } from '@/store/themeStore';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { pingServer } from '@/controller/sysController';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
+import {
+  initializeOneSignal,
+  setupOneSignalUser,
+  addNotificationClickListener,
+  requestNotificationPermission,
+} from '@/utils/onesignal';
 
 setBackgroundColorAsync('black');
 
-OneSignal.initialize(Constants.expoConfig?.extra?.EXPO_PUBLIC_ONESIGNAL_APPID);
-OneSignal.setConsentRequired(false);
-OneSignal.setConsentGiven(true);
+initializeOneSignal();
 
 function RootLayoutContent() {
   const pathname = usePathname();
@@ -91,33 +94,28 @@ function RootLayoutContent() {
   // PUSH NOTIFICATION
   const [canOneSignalLogin, setCanOneSignalLogin] = useState(false);
   useEffect(function initOneSignal() {
-    const handleNotificationClick = (e: NotificationClickEvent) => {
+    const handleNotificationClick = (e: any) => {
       const customData = e.notification.additionalData as Record<string, any>;
       // TODO
     };
 
-    OneSignal.Notifications.addEventListener('click', handleNotificationClick);
+    const removeListener = addNotificationClickListener(handleNotificationClick);
 
     (async () => {
       if (Platform.OS === 'web') return;
-      const hasPermission = await OneSignal.Notifications.getPermissionAsync();
-      if (!hasPermission) {
-        await OneSignal.Notifications.requestPermission(true);
-      }
-      OneSignal.User.pushSubscription.optIn();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await requestNotificationPermission();
       setCanOneSignalLogin(true);
     })();
 
     return () => {
-      OneSignal.Notifications.removeEventListener('click', handleNotificationClick);
+      removeListener();
     };
   }, []);
   useEffect(() => {
     if (Platform.OS === 'web' || !canOneSignalLogin) return;
     const id = thisTailscaleDevice?.id;
     if (!id) return;
-    OneSignal.login(id);
+    setupOneSignalUser(id);
   }, [thisTailscaleDevice?.id, canOneSignalLogin]);
 
   // Ping server
