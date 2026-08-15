@@ -3,6 +3,7 @@ export * from './utils';
 export * from './constants';
 export * from './components';
 export * from './services/platform';
+export * from './controller/sysController';
 
 // Screens
 export { default as DevicesListScreen } from './features/Devices/screens/DevicesListScreen';
@@ -19,3 +20,6 @@ export { default as DevicesHeaderRight } from './features/Devices/components/Hea
 
 // Stores
 export * from './features/Devices/store/deviceStore';
+
+// Hooks
+export * from './features/Devices/hooks/devices';
