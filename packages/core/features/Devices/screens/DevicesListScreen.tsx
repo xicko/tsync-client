@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, ListRenderItemInfo, Platform, RefreshControl, ScrollView } from 'react-native';
 import { Button, Spinner, Text, View, XStack, YStack } from 'tamagui';
 import dayjs from 'dayjs';
+import { Ellipsis, RefreshCcw } from '@tamagui/lucide-icons';
 import { eventEmit } from '@/utils';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -148,8 +149,18 @@ export default function DevicesListScreen() {
           </Text>
         </YStack>
 
-        {/* Filter pills */}
         <XStack gap="$2">
+          {isWeb ? (
+            <Button
+              size="$2"
+              height="auto"
+              aspectRatio={1}
+              icon={!isRefetching ? RefreshCcw : Ellipsis}
+              onPress={() => refetch()}
+            />
+          ) : null}
+
+          {/* Filter pills */}
           {(['all', 'online', 'offline'] as const).map((f) => (
             <Button key={f} size="$2" themeInverse={filter === f} onPress={() => setFilter(f)}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
