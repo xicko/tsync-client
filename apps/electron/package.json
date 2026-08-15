@@ -10,6 +10,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make:mac:x64": "electron-forge make --platform=darwin --arch=x64",
+    "make:mac:arm64": "electron-forge make --platform=darwin --arch=arm64",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
