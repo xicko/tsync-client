@@ -3,7 +3,7 @@ import { TamaguiProvider } from 'tamagui';
 import { createRoot } from 'react-dom/client';
 import { tamaguiConfig } from './theme/tamagui.config';
 import './index.css';
-import { useDomainStore, useTsyncNativeStore, queryClient, Sheets } from '@shared/core';
+import { useDomainStore, useTsyncNativeStore, queryClient, Sheets, useThemeStore } from '@shared/core';
 import { tsyncNativeElectronImpl } from './tsyncNative';
 import { createRouter, createHashHistory, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
@@ -32,6 +32,15 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const theme = useThemeStore((s) => s.theme);
+  return (
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
+      {children}
+    </TamaguiProvider>
+  );
+};
+
 const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
@@ -40,13 +49,13 @@ if (container) {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <KeyboardProvider>
-            <TamaguiProvider config={tamaguiConfig}>
+            <ThemeProvider>
               <SheetProvider>
                 <RouterProvider router={router} />
 
                 <Sheets />
               </SheetProvider>
-            </TamaguiProvider>
+            </ThemeProvider>
           </KeyboardProvider>
         </SafeAreaProvider>
       </QueryClientProvider>

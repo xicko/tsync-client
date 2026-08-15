@@ -1,7 +1,8 @@
 import { Outlet, createRootRoute, useRouter, useRouterState } from '@tanstack/react-router';
 import { YStack, Tabs, SizableText, View } from 'tamagui';
-import { useSocketStore, useDeviceStore, DevicesHeaderRight } from '@shared/core';
-import { useEffect, useRef } from 'react';
+import { useSocketStore, useDeviceStore, DevicesHeaderRight, useDevices } from '@shared/core';
+import { useEffect, useRef, useState } from 'react';
+import { AppStateStatus } from '../types/types';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -12,6 +13,7 @@ function RootComponent() {
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
 
+  useDevices();
   const thisTailscaleDevice = useDeviceStore((s) => s.thisTailscaleDevice);
   const lastDeviceUpdate = useDeviceStore((s) => s.lastDeviceUpdate);
   const socket = useSocketStore((s) => s.socket);
@@ -33,9 +35,27 @@ function RootComponent() {
     [deviceId, connectSocket, disconnectSocket]
   );
 
+  const [appState, setAppState] = useState<AppStateStatus>('active');
   useEffect(() => {
-    useDeviceStore.getState().updateBatteryStatus();
+    window.electronAPI?.appState.get().then((initialState) => {
+      setAppState(initialState);
+    });
+
+    const unsubscribe = window.electronAPI?.appState.subscribe((nextState) => {
+      setAppState(nextState);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  useEffect(
+    function () {
+      if (appState === 'active') useDeviceStore.getState().updateBatteryStatus();
+    },
+    [appState]
+  );
 
   return (
     <YStack flex={1} height="100vh" maxH="100vh" overflow="hidden" bg="$background">

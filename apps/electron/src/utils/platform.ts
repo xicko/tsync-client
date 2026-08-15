@@ -3,8 +3,8 @@ type OS = 'macos' | 'windows' | 'linux' | 'unknown';
 function getOS(): OS {
   // Read from Electron IPC if in Renderer, or process directly if in Main/Preload
   const rawPlatform =
-    typeof window !== 'undefined' && window.electronAPI.platform
-      ? window.electronAPI.platform
+    typeof window !== 'undefined' && window.electronAPI?.platform
+      ? window.electronAPI?.platform
       : typeof process !== 'undefined'
         ? process.platform
         : '';
