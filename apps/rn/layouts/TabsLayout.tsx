@@ -1,5 +1,5 @@
 import { router, Tabs } from 'expo-router';
-import { headerTextStyle, headerTitleContainerStyle } from '@/constants/theme.constants';
+import { headerTextStyle } from '@/constants/theme.constants';
 import { useSocketStore } from '@/store';
 import { RefreshCcw, Settings } from '@tamagui/lucide-icons';
 import { Button, useTheme } from 'tamagui';
@@ -75,7 +75,7 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
+
           headerRight: () => <DevicesHeaderRight socket={socket} lastDeviceUpdate={lastDeviceUpdate} />,
           headerLeft: () => {
             return (
@@ -103,7 +103,6 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
         }}
       />
 
@@ -116,7 +115,6 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
         }}
       />
 
@@ -129,7 +127,6 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
         }}
       />
 
@@ -142,7 +139,6 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
         }}
       />
 
@@ -155,7 +151,7 @@ export default function TabsLayout() {
           headerTitleAlign: 'center',
           headerStyle: headerStyle,
           headerShadowVisible: false,
-          headerTitleContainerStyle: headerTitleContainerStyle,
+
           headerLeft: () => {
             return (
               <Button
