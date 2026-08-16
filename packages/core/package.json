@@ -1,0 +1,14 @@
+{
+  "name": "@shared/core",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@shared/types": "workspace:*",
+    "@shared/theme": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "zustand": "*"
+  }
+}

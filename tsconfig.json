@@ -14,7 +14,7 @@
     "strict": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./apps/rn/*"]
+      "@/*": ["./packages/core/*"]
     }
   },
   "include": ["apps/electron/**/*", "apps/rn/**/*", "packages/types/**/*"],
