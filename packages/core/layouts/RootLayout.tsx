@@ -27,6 +27,7 @@ import {
   addNotificationClickListener,
   requestNotificationPermission,
 } from '@/utils/onesignal';
+import { NotificationClickEvent } from 'react-native-onesignal';
 import { storage } from '@/utils/storage';
 import Constants from 'expo-constants';
 
@@ -58,7 +59,6 @@ function RootLayoutContent() {
   const thisTailscaleDevice = useDeviceStore((s) => s.thisTailscaleDevice);
 
   // THEME
-  const theme = useThemeStore((s) => s.theme);
   const tamaguiTheme = useTheme();
 
   // FONT
@@ -92,7 +92,6 @@ function RootLayoutContent() {
   useEffect(() => {
     deviceRef.current = thisTailscaleDevice;
   }, [thisTailscaleDevice]);
-
   useEffect(
     function initConnectSocket() {
       const currentDevice = deviceRef.current;
@@ -122,7 +121,7 @@ function RootLayoutContent() {
   // PUSH NOTIFICATION
   const [canOneSignalLogin, setCanOneSignalLogin] = useState(false);
   useEffect(function initOneSignal() {
-    const handleNotificationClick = (e: any) => {
+    const handleNotificationClick = (e: NotificationClickEvent) => {
       const customData = e.notification.additionalData as Record<string, any>;
       // TODO
     };
