@@ -7,9 +7,29 @@ import { AppStateStatus } from './types/types';
 
 const execAsync = promisify(exec);
 
+const defaultTrayIcon = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets/icon-transparent.png')
+  : path.resolve(app.getAppPath(), '../../packages/core/assets/icon-transparent.png');
+
+const hiddenTrayIcon = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets/transparent-blank.png')
+  : path.resolve(app.getAppPath(), '../../packages/core/assets/transparent-blank.png');
+
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isQuitting = false;
+let trayIcon:
+  | {
+      type: 'default';
+      path: string;
+    }
+  | {
+      type: 'hidden';
+      path: string;
+    } = {
+  type: 'default',
+  path: defaultTrayIcon,
+};
 
 let currentAppState: AppStateStatus = 'active';
 const setAppState = (newState: AppStateStatus) => {
@@ -116,11 +136,9 @@ powerMonitor.on('unlock-screen', () => setAppState(mainWindow?.isFocused() ? 'ac
 ipcMain.handle('app-state:get', () => currentAppState);
 
 const createTray = () => {
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets/icon.png')
-    : path.resolve(__dirname, '../../../packages/core/assets/icon.png');
-
-  const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  const icon = nativeImage
+    .createFromPath(trayIcon.type === 'default' ? defaultTrayIcon : hiddenTrayIcon)
+    .resize({ width: 16, height: 16 });
   icon.setTemplateImage(true);
 
   tray = new Tray(icon);
@@ -130,6 +148,28 @@ const createTray = () => {
       type: 'normal',
       label: 'Open',
       click: () => mainWindow?.show(),
+    },
+    {
+      type: 'separator',
+    },
+    {
+      type: 'normal',
+      label: trayIcon.type === 'default' ? 'Hide tray icon' : 'Show tray icon',
+      click: () => {
+        trayIcon =
+          trayIcon.type === 'default'
+            ? {
+                type: 'hidden',
+                path: hiddenTrayIcon,
+              }
+            : {
+                type: 'default',
+                path: defaultTrayIcon,
+              };
+        tray?.destroy();
+        tray = null;
+        createTray();
+      },
     },
     {
       type: 'separator',
