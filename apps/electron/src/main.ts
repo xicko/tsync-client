@@ -186,17 +186,22 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  mainWindow.on('close', (event) => {
-    if (!isQuitting) {
-      event.preventDefault();
-      mainWindow?.hide();
-    }
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+    setAppState('background');
   });
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow?.show();
-  });
+  mainWindow.once('ready-to-show', () => mainWindow?.show());
 };
+
+const showOrOpenMainWindow = () => {
+  if (mainWindow === null || mainWindow?.isDestroyed()) {
+    createWindow();
+  } else {
+    mainWindow?.show();
+    mainWindow?.focus();
+  }
+}
 
 powerMonitor.on('suspend', () => setAppState('background'));
 powerMonitor.on('lock-screen', () => setAppState('background'));
@@ -223,7 +228,7 @@ const createTray = () => {
     {
       type: 'normal',
       label: 'Open',
-      click: () => mainWindow?.show(),
+      click: () => showOrOpenMainWindow(),
     },
     {
       type: 'separator',
@@ -262,7 +267,7 @@ const createTray = () => {
 
   tray.setToolTip('xd');
   tray.setContextMenu(contextMenu);
-  tray.on('double-click', () => mainWindow?.show());
+  tray.on('double-click', () => showOrOpenMainWindow());
 };
 
 // This method will be called when Electron has finished
@@ -284,10 +289,6 @@ app.on('window-all-closed', () => {
   // if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
-});
+app.on('activate', () => showOrOpenMainWindow());
 
-app.on('before-quit', () => {
-  isQuitting = true;
-});
+app.on('before-quit', () => isQuitting = true);
