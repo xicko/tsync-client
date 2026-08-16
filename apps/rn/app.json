@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "0tsync",
+    "name": "a0tsync",
     "slug": "tsync",
     "version": "1.0.0",
     "scheme": "tsync",
@@ -8,7 +8,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "../../packages/core/assets/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -32,33 +32,25 @@
           }
         }
       ],
-      [
-        "react-native-edge-to-edge",
-        {
-          "android": {
-            "parentTheme": "Default",
-            "enforceNavigationBarContrast": false
-          }
-        }
-      ],
       "expo-audio",
       "expo-background-task",
       [
         "expo-asset",
         {
-          "assets": ["assets"]
+          "assets": ["../../packages/core/assets"]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
+      "reactCompiler": true,
       "tsconfigPaths": true,
       "inlineModules": {
         "watchedDirectories": ["app", "features", "components"]
       }
     },
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "../../packages/core/assets/icon.png",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -67,7 +59,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "../../packages/core/assets/adaptive-icon.png",
         "backgroundColor": "#141414"
       },
       "permissions": [
