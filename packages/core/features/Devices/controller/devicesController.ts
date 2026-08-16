@@ -1,9 +1,8 @@
-import { useDomainStore } from '@/store';
 import { BatteryStatus, TailscaleDevicesResponse } from '@shared/types';
 
 // =========================================
 export async function getDevices(): Promise<TailscaleDevicesResponse | null> {
-  const domain = useDomainStore.getState().domainAddress;
+  const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
 
   try {
     const response = await fetch(`${domain}/api/devices`);
@@ -20,7 +19,7 @@ export async function getDevices(): Promise<TailscaleDevicesResponse | null> {
 
 // =========================================
 export async function wakeOnLan(tailscaleId: string): Promise<boolean> {
-  const domain = useDomainStore.getState().domainAddress;
+  const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -48,7 +47,7 @@ export async function wakeOnLan(tailscaleId: string): Promise<boolean> {
 
 // =========================================
 export async function setWindowsMacAddress(tailscaleId: string, macAddress: string | null): Promise<boolean> {
-  const domain = useDomainStore.getState().domainAddress;
+  const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -77,7 +76,7 @@ export async function setWindowsMacAddress(tailscaleId: string, macAddress: stri
 
 // =========================================
 export async function updateBatteryStatus(tailscaleId: string, body: BatteryStatus): Promise<boolean> {
-  const domain = useDomainStore.getState().domainAddress;
+  const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 

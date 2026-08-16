@@ -2,7 +2,7 @@ import { updateBatteryStatus } from '@/features/Devices/controller/devicesContro
 import { getTsyncNative } from '@/store/tsyncNativeStore';
 import { DeviceListItem, TailscaleDevice } from '@shared/types';
 import { create } from 'zustand';
-import { storage } from '@/utils/storage';
+import { useStorageStore } from '@/store';
 
 interface DeviceStoreState {
   devices: TailscaleDevice[];
@@ -37,7 +37,7 @@ export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
 
   thisTailscaleDevice: (() => {
     try {
-      const cached = storage.getString('thisTailscaleDevice');
+      const cached = useStorageStore.getState().getString('thisTailscaleDevice');
       return cached ? JSON.parse(cached) : null;
     } catch {
       return null;
