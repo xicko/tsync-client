@@ -39,7 +39,10 @@
         {
           "assets": ["../../packages/core/assets"]
         }
-      ]
+      ],
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
