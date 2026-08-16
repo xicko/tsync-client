@@ -13,13 +13,12 @@ import {
 } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { AppStateStatus } from './types/types';
+import type { AppStateStatus, TrayIconInterface } from './types/types';
 import { store } from './utils/electron-store';
 import { defaultTrayIcon, hiddenTrayIcon } from './constants/icon';
 import { getBatteryNative } from './shell/battery';
 import { fetchBatteryStatus } from './api/battery-status';
-
-type TrayIconInterface = { type: 'default'; path: string } | { type: 'hidden'; path: string };
+import type { TailscaleDevice } from '@shared/types';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -96,7 +95,6 @@ if (!gotTheLock) {
   });
 })();
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) app.quit();
 
 const runBatterySyncJob = async () => {
@@ -120,7 +118,7 @@ const runBatterySyncJob = async () => {
     let tailscaleId: string | undefined;
     if (rawDevice) {
       try {
-        const parsed = JSON.parse(rawDevice);
+        const parsed = JSON.parse(rawDevice) as TailscaleDevice;
         tailscaleId = parsed?.id;
       } catch {
         tailscaleId = rawDevice;
@@ -150,7 +148,7 @@ const runBatterySyncJob = async () => {
 const startPersistentBatterySyncWorker = (intervalMs = 600_000) => {
   if (batterySyncJobInterval) clearInterval(batterySyncJobInterval);
 
-  runBatterySyncJob(); // initial run
+  runBatterySyncJob();
 
   batterySyncJobInterval = setInterval(runBatterySyncJob, intervalMs);
 };
@@ -206,7 +204,10 @@ powerMonitor.on('resume', () => {
   setAppState(mainWindow?.isFocused() ? 'active' : 'inactive');
   startPersistentBatterySyncWorker();
 });
-powerMonitor.on('unlock-screen', () => setAppState(mainWindow?.isFocused() ? 'active' : 'inactive'));
+powerMonitor.on('unlock-screen', () => {
+  setAppState(mainWindow?.isFocused() ? 'active' : 'inactive');
+  startPersistentBatterySyncWorker();
+});
 powerMonitor.on('on-ac', () => runBatterySyncJob());
 powerMonitor.on('on-battery', () => runBatterySyncJob());
 
@@ -279,9 +280,6 @@ app.on('ready', () => {
   });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   // if (process.platform !== 'darwin') app.quit();
 });
