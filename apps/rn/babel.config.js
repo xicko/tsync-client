@@ -1,3 +1,6 @@
+/* global __dirname */
+const path = require('path');
+
 module.exports = function (api) {
   api.cache(true);
   let plugins = [];
@@ -7,7 +10,7 @@ module.exports = function (api) {
     '@tamagui/babel-plugin',
     {
       components: ['tamagui'],
-      config: './theme/tamagui.config.ts',
+      config: path.resolve(__dirname, '../../packages/core/theme/tamagui.config'),
       logTimings: true,
     },
   ]);
