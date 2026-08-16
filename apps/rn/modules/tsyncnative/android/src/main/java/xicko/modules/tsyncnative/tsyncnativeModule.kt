@@ -46,13 +46,19 @@ class tsyncnativeModule : Module() {
 
     OnCreate {
       if (!isShellInit) {
-        Shell.enableVerboseLogging = BuildConfig.DEBUG
-        Shell.setDefaultBuilder(
-          Shell.Builder.create()
-            .setFlags(Shell.FLAG_MOUNT_MASTER)
-            .setInitializers(Shell.Initializer::class.java)
-            .setTimeout(10)
-        )
+        try {
+          if (Shell.getCachedShell() == null) {
+            Shell.enableVerboseLogging = BuildConfig.DEBUG
+            Shell.setDefaultBuilder(
+              Shell.Builder.create()
+                .setFlags(Shell.FLAG_MOUNT_MASTER)
+                .setInitializers(Shell.Initializer::class.java)
+                .setTimeout(10)
+            )
+          }
+        } catch (e: Exception) {
+          Log.w("tsyncnative", "Shell builder: ${e.message}")
+        }
         isShellInit = true
       }
 
