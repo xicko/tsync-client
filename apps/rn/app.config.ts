@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import * as tsyncNativePlugin from './modules/tsyncnative/app.plugin.cjs';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export default ({ config }: { config: ExpoConfig }) => {
   // google-services.json
