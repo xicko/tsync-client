@@ -18,6 +18,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
       };
     },
   },
+  storage: {
+    getString: (key: string): string | null => ipcRenderer.sendSync('storage:get', key),
+    setString: (key: string, value: string): void => ipcRenderer.sendSync('storage:set', key, value),
+    delete: (key: string): void => ipcRenderer.sendSync('storage:delete', key),
+    getAllKeys: (): string[] => ipcRenderer.sendSync('storage:getAllKeys'),
+    clearAll: (): void => ipcRenderer.sendSync('storage:clearAll'),
+  },
 });
 
 contextBridge.exposeInMainWorld('darkMode', {

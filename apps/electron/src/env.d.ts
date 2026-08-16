@@ -16,6 +16,13 @@ interface Window {
       get: () => Promise<import('./types/types').AppStateStatus>;
       subscribe: (callback: (state: import('./types/types').AppStateStatus) => void) => () => void;
     };
+    storage: {
+      getString: (key: string) => string | null;
+      setString: (key: string, value: string) => void;
+      delete: (key: string) => void;
+      getAllKeys: () => string[];
+      clearAll: () => void;
+    };
   };
   darkMode: {
     toggle: () => void;

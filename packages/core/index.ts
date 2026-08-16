@@ -3,7 +3,10 @@ export * from './utils';
 export * from './constants';
 export * from './components';
 export * from './services/platform';
+
+// Controllers
 export * from './controller/sysController';
+export * from './features/Devices/controller/devicesController';
 
 // Screens
 export { default as DevicesListScreen } from './features/Devices/screens/DevicesListScreen';

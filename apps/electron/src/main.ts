@@ -1,15 +1,33 @@
-import { app, BrowserWindow, ipcMain, screen, powerMonitor, Tray, Menu, nativeImage, nativeTheme } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  screen,
+  powerMonitor,
+  Tray,
+  Menu,
+  nativeImage,
+  nativeTheme,
+  powerSaveBlocker,
+  Notification,
+} from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import { AppStateStatus } from './types/types';
+import { store } from './utils/electron-store';
+import { defaultTrayIcon, hiddenTrayIcon } from './constants/icon';
+import { getBatteryNative } from './shell/battery';
+import { fetchBatteryStatus } from './api/battery-status';
 
-const execAsync = promisify(exec);
+type TrayIconInterface = { type: 'default'; path: string } | { type: 'hidden'; path: string };
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isQuitting = false;
+let trayIcon: TrayIconInterface = { type: 'default', path: defaultTrayIcon };
+let batterySyncJobInterval: ReturnType<typeof setInterval> | null = null;
+let hasBattery: boolean | null = null;
+let blockerId: number | null = null;
 
 let currentAppState: AppStateStatus = 'active';
 const setAppState = (newState: AppStateStatus) => {
@@ -18,6 +36,7 @@ const setAppState = (newState: AppStateStatus) => {
     mainWindow.webContents.send('app-state:changed', currentAppState);
   }
 };
+ipcMain.handle('app-state:get', () => currentAppState);
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
@@ -31,42 +50,115 @@ if (!gotTheLock) {
   });
 }
 
-ipcMain.handle('get-battery-status', async () => {
-  try {
-    const { stdout } = await execAsync('pmset -g batt');
-    const percentMatch = stdout.match(/(\d+)%/);
-    if (!percentMatch) throw new Error('No battery');
-    const level: number = parseInt(percentMatch[1], 10);
-    const isCharging: boolean = stdout.includes('charging') && !stdout.includes('discharging');
+(function batteryIPC() {
+  ipcMain.handle('get-battery-status', async () => {
+    return await getBatteryNative();
+  });
+})();
 
-    return { level, isCharging };
-  } catch (err) {
-    console.error('Failed to get battery status:', err);
-    return null;
-  }
-});
+(function themeIPC() {
+  ipcMain.handle('dark-mode:toggle', () => {
+    if (nativeTheme.shouldUseDarkColors) {
+      nativeTheme.themeSource = 'light';
+    } else {
+      nativeTheme.themeSource = 'dark';
+    }
+    return nativeTheme.shouldUseDarkColors;
+  });
 
-ipcMain.handle('dark-mode:toggle', () => {
-  if (nativeTheme.shouldUseDarkColors) {
-    nativeTheme.themeSource = 'light';
-  } else {
-    nativeTheme.themeSource = 'dark';
-  }
-  return nativeTheme.shouldUseDarkColors;
-});
+  ipcMain.handle('dark-mode:system', () => {
+    nativeTheme.themeSource = 'system';
+  });
+})();
 
-ipcMain.handle('dark-mode:system', () => {
-  nativeTheme.themeSource = 'system';
-});
+(function storageIPC() {
+  ipcMain.on('storage:get', (event, key: string) => {
+    event.returnValue = (store.get(key) as string) ?? null;
+  });
+
+  ipcMain.on('storage:set', (event, key: string, value: string) => {
+    store.set(key, value);
+    event.returnValue = true;
+  });
+
+  ipcMain.on('storage:delete', (event, key: string) => {
+    store.delete(key);
+    event.returnValue = true;
+  });
+
+  ipcMain.on('storage:getAllKeys', (event) => {
+    event.returnValue = Object.keys(store.store);
+  });
+
+  ipcMain.on('storage:clearAll', (event) => {
+    store.clear();
+    event.returnValue = true;
+  });
+})();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) app.quit();
+
+const runBatterySyncJob = async () => {
+  console.log('Bg job called');
+
+  try {
+    if (hasBattery === false) {
+      if (blockerId) powerSaveBlocker.stop(blockerId);
+      return;
+    }
+    const battery = await getBatteryNative();
+    if (!battery) {
+      hasBattery = false;
+      return;
+    }
+    hasBattery = true;
+    blockerId = powerSaveBlocker.start('prevent-app-suspension');
+
+    const domain = store.get('domain') as string | undefined;
+    const rawDevice = store.get('thisTailscaleDevice') as string | undefined;
+    let tailscaleId: string | undefined;
+    if (rawDevice) {
+      try {
+        const parsed = JSON.parse(rawDevice);
+        tailscaleId = parsed?.id;
+      } catch {
+        tailscaleId = rawDevice;
+      }
+    }
+
+    if (!domain || !tailscaleId) {
+      console.log('Bg job waiting for domain and device setup');
+      return;
+    }
+
+    const result = await fetchBatteryStatus(domain, tailscaleId, {
+      level: battery.level,
+      isPlugged: battery.isCharging,
+      timestamp: Date.now(),
+    });
+
+    new Notification({
+      title: 'Battery Sync',
+      body: result ? 'Successful' : 'Unsuccessul',
+    }).show();
+  } catch (error) {
+    console.error('Bg job error:', error);
+  }
+};
+
+const startPersistentBatterySyncWorker = (intervalMs = 600_000) => {
+  if (batterySyncJobInterval) clearInterval(batterySyncJobInterval);
+
+  runBatterySyncJob(); // initial run
+
+  batterySyncJobInterval = setInterval(runBatterySyncJob, intervalMs);
+};
 
 const createWindow = () => {
   const primaryDisplay = screen.getPrimaryDisplay();
   const scrWidth = primaryDisplay.bounds.width;
 
-  // Create the browser window.
   mainWindow = new BrowserWindow({
     width: scrWidth,
     height: Math.round(scrWidth / (16 / 9)),
@@ -110,17 +202,18 @@ const createWindow = () => {
 
 powerMonitor.on('suspend', () => setAppState('background'));
 powerMonitor.on('lock-screen', () => setAppState('background'));
-powerMonitor.on('resume', () => setAppState(mainWindow?.isFocused() ? 'active' : 'inactive'));
+powerMonitor.on('resume', () => {
+  setAppState(mainWindow?.isFocused() ? 'active' : 'inactive');
+  startPersistentBatterySyncWorker();
+});
 powerMonitor.on('unlock-screen', () => setAppState(mainWindow?.isFocused() ? 'active' : 'inactive'));
-
-ipcMain.handle('app-state:get', () => currentAppState);
+powerMonitor.on('on-ac', () => runBatterySyncJob());
+powerMonitor.on('on-battery', () => runBatterySyncJob());
 
 const createTray = () => {
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets/icon.png')
-    : path.resolve(__dirname, '../../../packages/core/assets/icon.png');
-
-  const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  const icon = nativeImage
+    .createFromPath(trayIcon.type === 'default' ? defaultTrayIcon : hiddenTrayIcon)
+    .resize({ width: 16, height: 16 });
   icon.setTemplateImage(true);
 
   tray = new Tray(icon);
@@ -130,6 +223,28 @@ const createTray = () => {
       type: 'normal',
       label: 'Open',
       click: () => mainWindow?.show(),
+    },
+    {
+      type: 'separator',
+    },
+    {
+      type: 'normal',
+      label: trayIcon.type === 'default' ? 'Hide tray icon' : 'Show tray icon',
+      click: () => {
+        trayIcon =
+          trayIcon.type === 'default'
+            ? {
+                type: 'hidden',
+                path: hiddenTrayIcon,
+              }
+            : {
+                type: 'default',
+                path: defaultTrayIcon,
+              };
+        tray?.destroy();
+        tray = null;
+        createTray();
+      },
     },
     {
       type: 'separator',
@@ -156,8 +271,11 @@ app.on('ready', () => {
   createWindow();
   createTray();
 
+  startPersistentBatterySyncWorker();
+
   app.setLoginItemSettings({
     openAtLogin: true,
+    openAsHidden: true,
   });
 });
 
@@ -165,7 +283,7 @@ app.on('ready', () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  // if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('activate', () => {
