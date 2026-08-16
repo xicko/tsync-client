@@ -3,6 +3,7 @@ import { YStack, Tabs, SizableText, View } from 'tamagui';
 import { useSocketStore, useDeviceStore, DevicesHeaderRight, useDevices } from '@shared/core';
 import { useEffect, useRef, useState } from 'react';
 import { AppStateStatus } from '../types/types';
+import { focusManager } from '@tanstack/react-query';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -52,7 +53,9 @@ function RootComponent() {
 
   useEffect(
     function () {
-      if (appState === 'active') useDeviceStore.getState().updateBatteryStatus();
+      const isFocused = appState === 'active';
+      if (isFocused) useDeviceStore.getState().updateBatteryStatus();
+      focusManager.setFocused(isFocused);
     },
     [appState]
   );

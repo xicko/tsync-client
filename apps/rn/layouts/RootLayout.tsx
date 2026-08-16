@@ -3,7 +3,7 @@ import { Stack, usePathname } from 'expo-router';
 import { AppState, Platform } from 'react-native';
 import { TamaguiProvider, useTheme } from 'tamagui';
 import { tamaguiConfig } from '@/theme/tamagui.config';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/utils';
 import { headerTextStyle } from '@/constants/theme.constants';
 import { StackNavDefaultBackButton } from '@/components/StackNavDefaultBackButton';
@@ -192,7 +192,9 @@ function RootLayoutContent() {
     };
     callback();
     const sub = AppState.addEventListener('change', (e) => {
-      if (e === 'active') callback();
+      const isFocused = e === 'active';
+      if (isFocused) callback();
+      focusManager.setFocused(isFocused);
     });
     return () => sub.remove();
   }, []);
