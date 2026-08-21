@@ -12,8 +12,8 @@ interface DeviceStoreState {
   setSelectedDevice: (device: DeviceListItem) => void;
   clearSelectedDevice: () => void;
 
-  lastDeviceUpdate: Date | null;
-  setLastDeviceUpdate: (date: Date) => void;
+  lastDeviceUpdate: Date | number | null;
+  setLastDeviceUpdate: (date: Date | number) => void;
 
   thisTailscaleDevice: TailscaleDevice | null;
   setThisTailscaleDevice: (device: TailscaleDevice) => void;

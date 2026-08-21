@@ -29,9 +29,7 @@ function toDeviceListItem(device: TailscaleDevice): DeviceListItem {
 export default function DevicesListScreen() {
   const isWeb = Platform.OS === 'web';
   const { data, isLoading, isError, refetch, isRefetching } = useDevices();
-  const socket = useSocketStore((s) => s.socket);
   const setSelectedDevice = useDeviceStore((s) => s.setSelectedDevice);
-  const setLastDeviceUpdate = useDeviceStore((s) => s.setLastDeviceUpdate);
   const router = useRouter();
   const [filter, setFilter] = useState<'all' | 'online' | 'offline'>('all');
 
@@ -73,32 +71,17 @@ export default function DevicesListScreen() {
     }, [refetch])
   );
 
-  useEffect(function listenToRemoteRefresh() {
-    const callback = () => {
-      refetch();
-      setLastDeviceUpdate(new Date());
-    };
-    eventEmit.on('refreshDevices', callback);
-    return () => {
-      eventEmit.off('refreshDevices', callback);
-    };
-  }, []);
-
   useEffect(
-    function listenToSocket() {
-      if (!socket) return;
+    function listenToRemoteRefresh() {
       const callback = () => {
         refetch();
-        setLastDeviceUpdate(new Date());
       };
-
-      socket.on('devicesUpdate', callback);
-
+      eventEmit.on('refreshDevices', callback);
       return () => {
-        socket.off('devicesUpdate', callback);
+        eventEmit.off('refreshDevices', callback);
       };
     },
-    [socket]
+    [refetch]
   );
 
   const handlePress = useCallback(

@@ -1,11 +1,13 @@
 import { getDevices } from '@/features/Devices/controller/devicesController';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
-import { useStorageStore } from '@/store';
+import { useSocketStore, useStorageStore } from '@/store';
+import { queryClient } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 // contains side effects
 export function useDevices() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['devices'],
     queryFn: async () => {
       const data = await getDevices();
@@ -30,4 +32,20 @@ export function useDevices() {
     refetchOnMount: true,
     refetchOnReconnect: true,
   });
+
+  useEffect(() => {
+    if (query.dataUpdatedAt) useDeviceStore.getState().setLastDeviceUpdate(query.dataUpdatedAt);
+  }, [query.dataUpdatedAt]);
+
+  const socket = useSocketStore((s) => s.socket);
+  useEffect(() => {
+    if (!socket) return;
+    const callback = () => queryClient.invalidateQueries({ queryKey: ['devices'] });
+    socket.on('devicesUpdate', callback);
+    return () => {
+      socket.off('devicesUpdate', callback);
+    };
+  }, [socket]);
+
+  return query;
 }
