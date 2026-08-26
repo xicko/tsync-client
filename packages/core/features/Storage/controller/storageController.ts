@@ -3,14 +3,8 @@ import { StorageFile } from '../types/storage-file.interface';
 import { PaginationResponse } from '@shared/types';
 import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
-
-export interface UploadFileInput {
-  uri: string;
-  name: string;
-  type?: string;
-  size?: number;
-  file?: File | Blob;
-}
+import { UploadFileInput } from '../types/upload-file-input';
+import { useStorageDependencyStore } from '../store/storageDependencyStore';
 
 // =========================================
 export async function getFilesList(
@@ -53,23 +47,9 @@ export async function uploadFile(fileInput: UploadFileInput): Promise<boolean> {
   const domain = useDomainStore.getState().domainAddress;
 
   const url = `${domain}/api/storage`;
-  const formdata = new FormData();
-
-  if (fileInput.file) {
-    formdata.append('file', fileInput.file);
-  } else {
-    formdata.append('file', {
-      uri: fileInput.uri,
-      name: fileInput.name,
-      type: fileInput.type || 'application/octet-stream',
-    } as any);
-  }
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formdata,
-    });
+    const response = await useStorageDependencyStore.getState().uploadFn(url, fileInput);
 
     return response.status === 201 || response.status === 200;
   } catch (error) {

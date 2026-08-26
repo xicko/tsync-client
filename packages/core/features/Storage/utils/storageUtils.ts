@@ -18,6 +18,26 @@ import {
   VIDEO_EXTENSIONS,
 } from '../constants/file-types.constant';
 import { FileTypeInfo } from '../types/storage-file.interface';
+import { UploadFileInput } from '../types/upload-file-input';
+
+export async function uploadFn(url: string, fileInput: UploadFileInput): Promise<Response> {
+  const formdata = new FormData();
+
+  if (fileInput.file) {
+    formdata.append('file', fileInput.file);
+  } else {
+    formdata.append('file', {
+      uri: fileInput.uri,
+      name: fileInput.name,
+      type: fileInput.type || 'application/octet-stream',
+    } as any);
+  }
+
+  return await fetch(url, {
+    method: 'POST',
+    body: formdata,
+  });
+}
 
 export function formatFileSize(bytes?: number): string {
   if (!bytes || bytes === 0) return '0 B';

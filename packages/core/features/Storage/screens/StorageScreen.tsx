@@ -2,7 +2,7 @@ import { useStorageFilesList } from '../hooks/storage';
 import { StorageFileCard } from '../components/StorageFileCard';
 import { useCallback, useEffect, useMemo } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useGlobalSearchParams } from 'expo-router';
 import { Button, ScrollView, Spinner, Text, View, YGroup } from 'tamagui';
 import { Upload } from '@tamagui/lucide-icons';
 import { SheetManager } from 'react-native-actions-sheet';

@@ -8,15 +8,7 @@ const RootIndex = () => {
   const rootNavigationState = useRootNavigationState();
   const theme = useThemeStore((state) => state.theme);
 
-  const [wait, setWait] = useState<boolean>(true);
-  useEffect(() => {
-    (async () => {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      setWait(false);
-    })();
-  }, []);
-
-  if (!rootNavigationState?.key || wait) {
+  if (!rootNavigationState?.key) {
     return (
       <View flex={1} items="center" justify="center" bg={theme === 'light' ? '#fff' : '#000'}>
         <ActivityIndicator color={theme === 'light' ? '#000' : '#fff'} size="large" />

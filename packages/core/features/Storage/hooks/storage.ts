@@ -1,5 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteFile, getFilesList, uploadFile, UploadFileInput } from '../controller/storageController';
+import { deleteFile, getFilesList, uploadFile } from '../controller/storageController';
+import { UploadFileInput } from '../types/upload-file-input';
+import { useStorageDependencyStore } from '../store/storageDependencyStore';
 
 export function useStorageFilesList(search?: string) {
   const query = useInfiniteQuery({

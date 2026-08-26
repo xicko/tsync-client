@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { Stack, usePathname } from 'expo-router';
+import { router, Stack, usePathname, useRootNavigationState } from 'expo-router';
 import { AppState, Platform } from 'react-native';
 import { TamaguiProvider, useTheme } from 'tamagui';
 import { tamaguiConfig } from '@/theme/tamagui.config';
@@ -30,6 +30,8 @@ import {
 import { NotificationClickEvent } from 'react-native-onesignal';
 import { storage } from '@/utils/storage';
 import Constants from 'expo-constants';
+import { useStorageDependencyStore } from '@/features/Storage/store/storageDependencyStore';
+import { nativeUploadFn } from '../adapters';
 
 (() => {
   setBackgroundColorAsync('black');
@@ -54,6 +56,8 @@ import Constants from 'expo-constants';
 
 function RootLayoutContent() {
   const pathname = usePathname();
+  const rootNavigationState = useRootNavigationState();
+  const isNavigationReady = !!rootNavigationState?.key;
   if (__DEV__) console.log(pathname);
 
   const thisTailscaleDevice = useDeviceStore((s) => s.thisTailscaleDevice);
@@ -118,32 +122,77 @@ function RootLayoutContent() {
     [socket]
   );
 
+  // lololol
+  useEffect(function injectAtRuntime() {
+    useStorageDependencyStore.setState({
+      uploadFn: nativeUploadFn,
+    });
+  }, []);
+
   // PUSH NOTIFICATION
   const [canOneSignalLogin, setCanOneSignalLogin] = useState(false);
-  useEffect(function initOneSignal() {
-    const handleNotificationClick = (e: NotificationClickEvent) => {
-      const customData = e.notification.additionalData as Record<string, any>;
-      // TODO
-    };
+  const pendingNotificationTarget = useRef<{ pathname: string; params?: any } | null>(null);
+  useEffect(
+    function initOneSignal() {
+      const handleNotificationClick = (e: NotificationClickEvent) => {
+        const customData = e.notification.additionalData as {
+          type: string;
+          data?: unknown;
+        };
 
-    const removeListener = addNotificationClickListener(handleNotificationClick);
+        if (customData.type === 'STORAGE_UPLOAD') {
+          const target = {
+            pathname: '/tabs/storage' as const,
+            params:
+              typeof customData.data === 'object'
+                ? {
+                    file: JSON.stringify(customData.data),
+                  }
+                : undefined,
+          };
 
-    (async () => {
-      if (Platform.OS === 'web') return;
-      await requestNotificationPermission();
-      setCanOneSignalLogin(true);
-    })();
+          if (!isNavigationReady) {
+            pendingNotificationTarget.current = target;
+          } else {
+            router.push(target);
+          }
 
-    return () => {
-      removeListener();
-    };
-  }, []);
+          return;
+        }
+      };
+
+      const removeListener = addNotificationClickListener(handleNotificationClick);
+
+      (async () => {
+        if (Platform.OS === 'web') return;
+        await requestNotificationPermission();
+        setCanOneSignalLogin(true);
+      })();
+
+      return () => {
+        removeListener?.();
+      };
+    },
+    [isNavigationReady]
+  );
   useEffect(() => {
     if (Platform.OS === 'web' || !canOneSignalLogin) return;
     const id = thisTailscaleDevice?.id;
     if (!id) return;
     setupOneSignalUser(id);
   }, [thisTailscaleDevice?.id, canOneSignalLogin]);
+  useEffect(
+    function routeAfterNavReady() {
+      if (isNavigationReady && pendingNotificationTarget.current) {
+        const target = pendingNotificationTarget.current;
+        pendingNotificationTarget.current = null;
+        setTimeout(() => {
+          router.push(target as any);
+        }, 200);
+      }
+    },
+    [isNavigationReady]
+  );
 
   // Ping server
   useEffect(
