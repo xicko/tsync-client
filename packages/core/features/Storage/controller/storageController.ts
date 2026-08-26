@@ -3,7 +3,6 @@ import { StorageFile } from '../types/storage-file.interface';
 import { PaginationResponse } from '@shared/types';
 import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
-import * as FileSystem from 'expo-file-system/legacy';
 
 export interface UploadFileInput {
   uri: string;
@@ -52,36 +51,27 @@ export async function getFilesList(
 // =========================================
 export async function uploadFile(fileInput: UploadFileInput): Promise<boolean> {
   const domain = useDomainStore.getState().domainAddress;
+
   const url = `${domain}/api/storage`;
+  const formdata = new FormData();
+
+  if (fileInput.file) {
+    formdata.append('file', fileInput.file);
+  } else {
+    formdata.append('file', {
+      uri: fileInput.uri,
+      name: fileInput.name,
+      type: fileInput.type || 'application/octet-stream',
+    } as any);
+  }
 
   try {
-    if (Platform.OS === 'web') {
-      const formdata = new FormData();
-
-      if (fileInput.file) {
-        formdata.append('file', fileInput.file);
-      } else {
-        const res = await fetch(fileInput.uri);
-        const blob = await res.blob();
-        formdata.append('file', blob, fileInput.name);
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formdata,
-      });
-
-      return response.status === 201 || response.status === 200;
-    }
-
-    const uploadResult = await FileSystem.uploadAsync(url, fileInput.uri, {
-      httpMethod: 'POST',
-      uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-      fieldName: 'file',
-      mimeType: fileInput.type,
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formdata,
     });
 
-    return uploadResult.status === 201 || uploadResult.status === 200;
+    return response.status === 201 || response.status === 200;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;

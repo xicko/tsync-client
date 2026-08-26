@@ -84,6 +84,7 @@ export default defineConfig({
       'expo-router': path.resolve(__dirname, 'src/utils/rn-dummy.ts'),
       expo: path.resolve(__dirname, 'src/utils/rn-dummy.ts'),
       'expo-modules-core': path.resolve(__dirname, 'src/utils/rn-dummy.ts'),
+      'expo-file-system/legacy': path.resolve(__dirname, 'src/utils/rn-dummy.ts'),
     },
     extensions: ['.web.tsx', '.tsx', '.web.ts', '.ts', '.web.jsx', '.jsx', '.web.js', '.js'],
   },

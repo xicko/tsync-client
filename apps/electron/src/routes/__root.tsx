@@ -75,17 +75,20 @@ function RootComponent() {
           <Tabs.Tab value="/notifications">
             <SizableText>Notifications</SizableText>
           </Tabs.Tab>
-          <Tabs.Tab value="/crons">
-            <SizableText>Crons</SizableText>
-          </Tabs.Tab>
           <Tabs.Tab value="/app-control">
             <SizableText>App Control</SizableText>
+          </Tabs.Tab>
+          <Tabs.Tab value="/shell">
+            <SizableText>Shell</SizableText>
           </Tabs.Tab>
           <Tabs.Tab value="/message">
             <SizableText>Message</SizableText>
           </Tabs.Tab>
-          <Tabs.Tab value="/shell">
-            <SizableText>Shell</SizableText>
+          <Tabs.Tab value="/storage">
+            <SizableText>Storage</SizableText>
+          </Tabs.Tab>
+          <Tabs.Tab value="/crons">
+            <SizableText>Crons</SizableText>
           </Tabs.Tab>
           <Tabs.Tab value="/settings">
             <SizableText>Settings</SizableText>

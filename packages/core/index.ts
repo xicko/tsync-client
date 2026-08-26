@@ -17,6 +17,7 @@ export { default as MessageScreen } from './features/Message/screens/MessageScre
 export { default as NotificationsListScreen } from './features/NotificationsSync/screens/NotificationsListScreen';
 export { default as SettingsScreen } from './features/Settings/screens/SettingsScreen';
 export { default as AppControlScreen } from './screens/AppControlScreen';
+export { default as StorageScreen } from './features/Storage/screens/StorageScreen';
 
 // Header components
 export { default as DevicesHeaderRight } from './features/Devices/components/Header/SocketConnectionHeader';
