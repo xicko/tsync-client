@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { View, Text, XStack, YStack as TamaguiYStack, Circle, useTheme, ScrollView } from 'tamagui';
 import Animated, { withTiming, LinearTransition } from 'react-native-reanimated';
-import { Bell, Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
+import { Bell, Box, Clock, Layers2, MessageCircle, MonitorSmartphone, TerminalSquare } from '@tamagui/lucide-icons';
 import { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs/types';
 
 interface CustomTabBarProps extends BottomTabBarProps {}
@@ -119,6 +119,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
       '/tabs/appcontrol': 'appcontrol',
       '/tabs/shell': 'shell',
       '/tabs/message': 'message',
+      '/tabs/storage': 'storage',
       '/tabs/crons': 'crons',
     } as const;
     return pathToTab[pathname as keyof typeof pathToTab] || state.routeNames[state.index];
@@ -181,6 +182,14 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
           activeIcon={<MessageCircle />}
           isActive={activeTab === 'message'}
           onPress={() => handleTabPress('message')}
+        />
+
+        <TabItem
+          label="Storage"
+          icon={<Box strokeWidth={1.3} color={'$color7'} />}
+          activeIcon={<Box />}
+          isActive={activeTab === 'storage'}
+          onPress={() => handleTabPress('storage')}
         />
 
         <TabItem

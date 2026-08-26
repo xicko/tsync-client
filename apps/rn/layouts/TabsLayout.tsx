@@ -168,6 +168,18 @@ export default function TabsLayout() {
           },
         }}
       />
+
+      <Tabs.Screen
+        name="storage"
+        options={{
+          headerShown: true,
+          headerTitle: 'Storage',
+          headerTitleStyle: headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerStyle: headerStyle,
+          headerShadowVisible: false,
+        }}
+      />
     </Tabs>
   );
 }
