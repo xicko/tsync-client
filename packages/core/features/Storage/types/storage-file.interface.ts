@@ -6,6 +6,7 @@ export interface StorageFile {
   name: string;
   sizeBytes: number;
   mimetype?: string;
+  expiresAt?: string;
   createdAt: string;
   updatedAt: string;
 }

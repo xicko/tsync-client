@@ -124,9 +124,11 @@ function RootLayoutContent() {
 
   // lololol
   useEffect(function injectAtRuntime() {
-    useStorageDependencyStore.setState({
-      uploadFn: nativeUploadFn,
-    });
+    const isWeb = Platform.OS === 'web';
+    if (!isWeb)
+      useStorageDependencyStore.setState({
+        uploadFn: nativeUploadFn,
+      });
   }, []);
 
   // PUSH NOTIFICATION

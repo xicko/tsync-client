@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteFile, getFilesList, uploadFile } from '../controller/storageController';
 import { UploadFileInput } from '../types/upload-file-input';
-import { useStorageDependencyStore } from '../store/storageDependencyStore';
 
 export function useStorageFilesList(search?: string) {
   const query = useInfiniteQuery({
@@ -38,8 +37,8 @@ export function useUploadFile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (fileInput: UploadFileInput) => {
-      return await uploadFile(fileInput);
+    mutationFn: async ({ fileInput, expiry }: { fileInput: UploadFileInput; expiry?: Date }) => {
+      return await uploadFile(fileInput, expiry);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['storage-files-list'] });

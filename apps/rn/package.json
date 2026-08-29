@@ -68,6 +68,7 @@
     "react-dom": "19.2.3",
     "react-native": "0.86.2",
     "react-native-actions-sheet": "^10.1.2",
+    "react-native-date-picker": "^5.0.13",
     "react-native-edge-to-edge": "^1.8.1",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-keyboard-controller": "1.21.9",

@@ -43,13 +43,15 @@ export async function getFilesList(
 }
 
 // =========================================
-export async function uploadFile(fileInput: UploadFileInput): Promise<boolean> {
+export async function uploadFile(fileInput: UploadFileInput, expiry?: Date): Promise<boolean> {
   const domain = useDomainStore.getState().domainAddress;
 
-  const url = `${domain}/api/storage`;
+  const url = new URL(`${domain}/api/storage`);
+
+  if (expiry) url.searchParams.append('expiry', String(expiry.getTime()));
 
   try {
-    const response = await useStorageDependencyStore.getState().uploadFn(url, fileInput);
+    const response = await useStorageDependencyStore.getState().uploadFn(url.toString(), fileInput);
 
     return response.status === 201 || response.status === 200;
   } catch (error) {

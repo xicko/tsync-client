@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-sheet';
-import { Button, H6, Text, View, XStack, YStack, useTheme, Spinner } from 'tamagui';
+import { Button, H6, Text, View, XStack, YStack, useTheme, Spinner, Switch } from 'tamagui';
 import { ArrowLeft, FileUp, Upload, X } from '@tamagui/lucide-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { showToast } from '@/utils/toast';
 import { useUploadFile } from '../../hooks/storage';
 import { formatFileSize, getFileTypeInfo } from '../../utils/storageUtils';
+import dayjs from 'dayjs';
+import DatePicker from 'react-native-date-picker';
+import { Platform } from 'react-native';
+import { useThemeStore } from '@/store';
 
 const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId }) => {
+  const isWeb = Platform.OS === 'web';
   const theme = useTheme();
+  const themeState = useThemeStore((s) => s.theme);
   const [selectedAsset, setSelectedAsset] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+  const [doesExpire, setDoesExpire] = useState<boolean>(!isWeb);
+  const [selectedDate, setSelectedDate] = useState<Date>(dayjs().add(3, 'day').toDate());
   const uploadMutation = useUploadFile();
 
   const handlePickDocument = async () => {
@@ -34,13 +42,25 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
       return;
     }
 
+    if (doesExpire) {
+      const now = dayjs().unix();
+      const date = dayjs(selectedDate).unix();
+      if (date <= now) {
+        showToast({ text1: 'Date must be in future' });
+        return;
+      }
+    }
+
     uploadMutation.mutate(
       {
-        uri: selectedAsset.uri,
-        name: selectedAsset.name,
-        type: selectedAsset.mimeType,
-        size: selectedAsset.size,
-        file: selectedAsset.file,
+        fileInput: {
+          uri: selectedAsset.uri,
+          name: selectedAsset.name,
+          type: selectedAsset.mimeType,
+          size: selectedAsset.size,
+          file: selectedAsset.file,
+        },
+        expiry: doesExpire ? selectedDate : undefined,
       },
       {
         onSuccess: (success) => {
@@ -115,6 +135,64 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
             </YStack>
           </Button>
         )}
+
+        {selectedAsset ? (
+          <View width="100%" justify="center" items="center" bg="$color2" rounded="$4">
+            <XStack
+              my="$3"
+              px="$4"
+              justify="space-between"
+              items="center"
+              gap="$4"
+              width={'100%'}
+              onPress={() => setDoesExpire((prev) => !prev)}>
+              <Text>Expiry</Text>
+
+              <Switch
+                self="flex-end"
+                themeInverse={doesExpire}
+                checked={doesExpire}
+                onCheckedChange={(v) => setDoesExpire(v)}>
+                <Switch.Thumb animation="medium" />
+              </Switch>
+            </XStack>
+
+            {doesExpire ? (
+              <>
+                {!isWeb ? (
+                  <DatePicker
+                    mode="datetime"
+                    date={selectedDate}
+                    onDateChange={setSelectedDate}
+                    minimumDate={new Date()}
+                  />
+                ) : (
+                  <XStack width="100%" px="$4" pb="$3" justify="center">
+                    <input
+                      type="datetime-local"
+                      value={dayjs(selectedDate).format('YYYY-MM-DDTHH:mm')}
+                      min={dayjs().format('YYYY-MM-DDTHH:mm')}
+                      onChange={(e) => {
+                        if (e.target.value) setSelectedDate(dayjs(e.target.value).toDate());
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: 8,
+                        border: `1px solid ${theme.borderColor?.val || '#ccc'}`,
+                        backgroundColor: theme.background?.val || 'transparent',
+                        color: theme.color?.val || 'inherit',
+                        fontSize: 14,
+                        outline: 'none',
+                        colorScheme: themeState,
+                      }}
+                    />
+                  </XStack>
+                )}
+              </>
+            ) : null}
+          </View>
+        ) : null}
 
         <XStack gap="$3" mt="$2">
           <Button icon={ArrowLeft} onPress={() => SheetManager.hide(sheetId)} disabled={uploadMutation.isPending}>

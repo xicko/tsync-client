@@ -21,6 +21,8 @@ export const StorageFileCard: React.FC<StorageFileCardProps> = ({ file, onPress 
   let format = 'MM/DD - HH:mm:ss';
   if (timestamp.year() !== now.year()) format = 'YYYY/MM/DD - HH:mm:ss';
 
+  const expiresAt = file.expiresAt ? dayjs(file.expiresAt) : null;
+
   const { Icon, color, bgColor } = getFileTypeInfo(file.name, file.mimetype);
 
   return (
@@ -79,6 +81,20 @@ export const StorageFileCard: React.FC<StorageFileCardProps> = ({ file, onPress 
           }}>
           {file.name}
         </Text>
+
+        {expiresAt ? (
+          <Text
+            fontSize={'$2'}
+            fontWeight={500}
+            color="$red8"
+            numberOfLines={2}
+            width="100%"
+            style={{
+              textAlign: 'left',
+            }}>
+            {expiresAt.fromNow()}
+          </Text>
+        ) : null}
 
         <Text
           color="$color8"
