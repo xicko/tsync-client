@@ -13,6 +13,7 @@ import { useThemeStore } from '@/store';
 import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import SparkMD5 from 'spark-md5';
+import { sha256 as jsSha256 } from 'js-sha256';
 
 const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId }) => {
   const isWeb = Platform.OS === 'web';
@@ -51,11 +52,15 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
         if (arrayBuffer) {
           if (!md5) md5 = SparkMD5.ArrayBuffer.hash(arrayBuffer);
 
-          const uint8 = new Uint8Array(arrayBuffer);
-          const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, uint8);
-          sha256 = Array.from(new Uint8Array(digest))
-            .map((b) => b.toString(16).padStart(2, '0'))
-            .join('');
+          if (!isWeb) {
+            const uint8 = new Uint8Array(arrayBuffer);
+            const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, uint8);
+            sha256 = Array.from(new Uint8Array(digest))
+              .map((b) => b.toString(16).padStart(2, '0'))
+              .join('');
+          } else {
+            sha256 = jsSha256(arrayBuffer);
+          }
         }
 
         if (!sha256 || !md5) {
