@@ -43,11 +43,18 @@ export async function getFilesList(
 }
 
 // =========================================
-export async function uploadFile(fileInput: UploadFileInput, expiry?: Date): Promise<boolean> {
+export async function uploadFile(
+  fileInput: UploadFileInput,
+  sha256: string,
+  md5: string,
+  expiry?: Date
+): Promise<boolean> {
   const domain = useDomainStore.getState().domainAddress;
 
   const url = new URL(`${domain}/api/storage`);
 
+  url.searchParams.append('sha256', sha256);
+  url.searchParams.append('md5', md5);
   if (expiry) url.searchParams.append('expiry', String(expiry.getTime()));
 
   try {

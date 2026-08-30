@@ -10,12 +10,17 @@ import dayjs from 'dayjs';
 import DatePicker from 'react-native-date-picker';
 import { Platform } from 'react-native';
 import { useThemeStore } from '@/store';
+import * as Crypto from 'expo-crypto';
+import { File } from 'expo-file-system';
+import SparkMD5 from 'spark-md5';
 
 const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId }) => {
   const isWeb = Platform.OS === 'web';
   const theme = useTheme();
   const themeState = useThemeStore((s) => s.theme);
-  const [selectedAsset, setSelectedAsset] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<
+    (DocumentPicker.DocumentPickerAsset & { sha256: string; md5: string }) | null
+  >(null);
   const [doesExpire, setDoesExpire] = useState<boolean>(!isWeb);
   const [selectedDate, setSelectedDate] = useState<Date>(dayjs().add(3, 'day').toDate());
   const uploadMutation = useUploadFile();
@@ -28,7 +33,43 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setSelectedAsset(result.assets[0]);
+        let sha256 = null;
+        let md5 = null;
+
+        if (!isWeb) {
+          const file = new File(result.assets[0].uri);
+          const info = file.info({ md5: true });
+          if (info.md5) md5 = info.md5 || null;
+        }
+
+        const arrayBuffer = await (async () => {
+          if (isWeb) return await result.assets[0].file?.arrayBuffer?.();
+          const file = new File(result.assets[0].uri);
+          return await file.arrayBuffer();
+        })();
+
+        if (arrayBuffer) {
+          if (!md5) md5 = SparkMD5.ArrayBuffer.hash(arrayBuffer);
+
+          const uint8 = new Uint8Array(arrayBuffer);
+          const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, uint8);
+          sha256 = Array.from(new Uint8Array(digest))
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+        }
+
+        if (!sha256 || !md5) {
+          showToast({
+            text1: 'Failed to compute hashes of the file',
+          });
+          return;
+        }
+
+        setSelectedAsset({
+          ...result.assets[0],
+          sha256,
+          md5,
+        });
       }
     } catch (error) {
       if (__DEV__) console.log('Document pick error', error);
@@ -60,6 +101,8 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
           size: selectedAsset.size,
           file: selectedAsset.file,
         },
+        sha256: selectedAsset.sha256,
+        md5: selectedAsset.md5,
         expiry: doesExpire ? selectedDate : undefined,
       },
       {

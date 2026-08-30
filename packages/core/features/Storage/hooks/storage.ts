@@ -37,8 +37,18 @@ export function useUploadFile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ fileInput, expiry }: { fileInput: UploadFileInput; expiry?: Date }) => {
-      return await uploadFile(fileInput, expiry);
+    mutationFn: async ({
+      fileInput,
+      sha256,
+      md5,
+      expiry,
+    }: {
+      fileInput: UploadFileInput;
+      sha256: string;
+      md5: string;
+      expiry?: Date;
+    }) => {
+      return await uploadFile(fileInput, sha256, md5, expiry);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['storage-files-list'] });
