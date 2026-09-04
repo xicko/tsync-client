@@ -103,7 +103,11 @@ const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = (
         </YStack>
 
         <XStack gap="$3">
-          <Button icon={ArrowLeft} onPress={() => SheetManager.hide(sheetId)} disabled={createMutation.isPending}>
+          <Button
+            flex={1}
+            icon={ArrowLeft}
+            onPress={() => SheetManager.hide(sheetId)}
+            disabled={createMutation.isPending}>
             <Text>Cancel</Text>
           </Button>
 

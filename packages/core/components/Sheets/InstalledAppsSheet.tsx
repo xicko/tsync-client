@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import ActionSheet, { SheetProps, SheetManager, FlatList } from 'react-native-actions-sheet';
-import { Button, Input, XStack, YStack, Text, H6, useTheme, Spinner } from 'tamagui';
+import { Button, Input, XStack, YStack, Text, H6, useTheme, Spinner, useWindowDimensions } from 'tamagui';
 import { ClipboardCopy, Search, X } from '@tamagui/lucide-icons';
 import { getTsyncNative } from '@/store/tsyncNativeStore';
 import * as Clipboard from 'expo-clipboard';
@@ -65,6 +65,7 @@ const AppItem = React.memo(
 
 const InstalledAppsSheet: React.FC<SheetProps<'installed-apps-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
+  const dimensions = useWindowDimensions();
   const [search, setSearch] = useState('');
 
   const isAndroid = Platform.OS === 'android';
@@ -124,7 +125,7 @@ const InstalledAppsSheet: React.FC<SheetProps<'installed-apps-sheet'>> = ({ shee
 
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
-      <YStack p="$5" gap="$3" maxH={600}>
+      <YStack p="$5" gap="$3" maxH={dimensions.height * 0.84}>
         <XStack justify="space-between" items="center">
           <H6>Installed Applications</H6>
           <Button size="$2" icon={X} aspectRatio={1} chromeless onPress={() => SheetManager.hide(sheetId)} />
@@ -169,7 +170,7 @@ const InstalledAppsSheet: React.FC<SheetProps<'installed-apps-sheet'>> = ({ shee
               data={filteredApps}
               keyExtractor={(item) => item.packageName}
               renderItem={renderItem}
-              style={{ maxHeight: 400, borderRadius: 8, overflow: 'hidden' }}
+              style={{ borderRadius: 8, overflow: 'hidden' }}
               initialNumToRender={15}
               maxToRenderPerBatch={15}
               windowSize={10}

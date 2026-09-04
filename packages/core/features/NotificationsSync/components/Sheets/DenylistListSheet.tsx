@@ -1,4 +1,4 @@
-import { Button, H6, Text, useTheme, View, YGroup, YStack } from 'tamagui';
+import { Button, H6, Text, useTheme, useWindowDimensions, View, YGroup, YStack } from 'tamagui';
 import ActionSheet, { ScrollView, SheetManager, SheetProps } from 'react-native-actions-sheet';
 import { Plus } from '@tamagui/lucide-icons';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
@@ -10,6 +10,7 @@ import { showToast } from '@/utils/toast';
 const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetId, payload }) => {
   const theme = useTheme();
   const tailscaleDevices = useDeviceStore((s) => s.devices);
+  const dimensions = useWindowDimensions();
 
   const { data, isLoading, hasNextPage, isFetchingNextPage, isRefetching, fetchNextPage, refetch } = useDenylistList();
   const deleteMutation = useDeleteDenylistItem();
@@ -64,7 +65,7 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
 
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
-      <View p={'$4'} gap={'$3'}>
+      <View p={'$4'} gap={'$3'} maxH={dimensions.height * 0.84}>
         <View>
           <H6>Denylist</H6>
         </View>

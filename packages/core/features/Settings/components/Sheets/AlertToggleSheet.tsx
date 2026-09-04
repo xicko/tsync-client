@@ -3,6 +3,7 @@ import { Button, XStack, YStack, Text, useTheme, Switch, H6 } from 'tamagui';
 import { useAlertSettings, useSaveAlertSettings } from '../../hooks/settings';
 import { useState } from 'react';
 import { showToast } from '@/utils/toast';
+import { Check, ArrowLeft } from '@tamagui/lucide-icons';
 
 const AlertToggleSheet: React.FC<SheetProps<'alert-toggle-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
@@ -38,8 +39,7 @@ const AlertToggleSheet: React.FC<SheetProps<'alert-toggle-sheet'>> = ({ sheetId 
         <XStack items="center" justify="space-between" py="$2">
           <Text fontSize="$4">Enable Global Alerts</Text>
           <Switch
-            size="$3"
-            themeInverse
+            themeInverse={isEnabled}
             checked={isEnabled}
             onCheckedChange={setLocalEnabled}
             disabled={isLoading || saveMutation.isPending}>
@@ -48,10 +48,19 @@ const AlertToggleSheet: React.FC<SheetProps<'alert-toggle-sheet'>> = ({ sheetId 
         </XStack>
 
         <XStack gap="$3">
-          <Button flex={1} onPress={() => SheetManager.hide(sheetId)} disabled={saveMutation.isPending}>
+          <Button
+            flex={1}
+            icon={ArrowLeft}
+            onPress={() => SheetManager.hide(sheetId)}
+            disabled={saveMutation.isPending}>
             <Text>Cancel</Text>
           </Button>
-          <Button flex={1} themeInverse onPress={handleSave} disabled={isLoading || saveMutation.isPending}>
+          <Button
+            flex={1}
+            icon={Check}
+            themeInverse
+            onPress={handleSave}
+            disabled={isLoading || saveMutation.isPending}>
             <Text>{saveMutation.isPending ? 'Saving...' : 'Save'}</Text>
           </Button>
         </XStack>
