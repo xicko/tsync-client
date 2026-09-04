@@ -1,14 +1,28 @@
 import ActionSheet, { ScrollView, SheetManager, SheetProps } from 'react-native-actions-sheet';
-import { Button, H6, Text, useTheme, View, YGroup, YStack, Switch, XStack, Spinner } from 'tamagui';
+import {
+  Button,
+  H6,
+  Text,
+  useTheme,
+  View,
+  YGroup,
+  YStack,
+  Switch,
+  XStack,
+  Spinner,
+  useWindowDimensions,
+} from 'tamagui';
 import { useAlertSettings, useSaveAlertSettings } from '../../hooks/settings';
 import { useDevices } from '@/features/Devices/hooks/devices';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { useState } from 'react';
 import { showToast } from '@/utils/toast';
 import { RefreshControl } from 'react-native';
+import { ArrowLeft, Check } from '@tamagui/lucide-icons';
 
 const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
+  const dimensions = useWindowDimensions();
 
   const {
     data: alertSettings,
@@ -60,7 +74,7 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
 
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
-      <View p="$4" gap="$3" height={450}>
+      <View p="$4" gap="$3" height={dimensions.height * 0.84}>
         <View>
           <H6>Alert Denylist (Muted Devices)</H6>
         </View>
@@ -84,15 +98,16 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
                     height={'auto'}
                     py="$3"
                     onPress={() => handleToggleDevice(device.id, !isDenylisted)}>
-                    <YStack>
-                      <Text fontWeight="bold">{device.name.split('.')[0]}</Text>
-                      <Text fontSize="$2" color="$color9">
+                    <YStack gap="$2">
+                      <Text fontWeight="bold" self="flex-start">
+                        {device.name.split('.')[0]}
+                      </Text>
+                      <Text fontSize="$2" color="$color9" self="flex-start">
                         {device.os} • {device.addresses[0]}
                       </Text>
                     </YStack>
                     <Switch
-                      size="$3"
-                      themeInverse
+                      themeInverse={isDenylisted}
                       pointerEvents="none"
                       checked={isDenylisted}
                       onCheckedChange={(checked) => handleToggleDevice(device.id, checked)}
@@ -112,10 +127,19 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
         )}
 
         <XStack gap="$3">
-          <Button flex={1} onPress={() => SheetManager.hide(sheetId)} disabled={saveMutation.isPending}>
+          <Button
+            flex={1}
+            icon={ArrowLeft}
+            onPress={() => SheetManager.hide(sheetId)}
+            disabled={saveMutation.isPending}>
             <Text>Cancel</Text>
           </Button>
-          <Button flex={1} themeInverse onPress={handleSave} disabled={isLoading || saveMutation.isPending}>
+          <Button
+            flex={1}
+            themeInverse
+            icon={Check}
+            onPress={handleSave}
+            disabled={isLoading || saveMutation.isPending}>
             <Text>{saveMutation.isPending ? 'Saving...' : 'Save'}</Text>
           </Button>
         </XStack>

@@ -4,6 +4,7 @@ import { Button, Input, YStack, Text, XStack, useTheme } from 'tamagui';
 import { useCreateCron } from '@/features/Cron/hooks/crons';
 import { showToast } from '@/utils/toast';
 import { Platform } from 'react-native';
+import { ArrowLeft, Plus } from '@tamagui/lucide-icons';
 
 const TYPES = ['REMINDER', 'COUNT', 'HEALTHCHECK'];
 
@@ -161,12 +162,12 @@ const CronCreateSheet: React.FC<SheetProps<'cron-create-sheet'>> = ({ sheetId })
           </YStack>
         )}
 
-        <XStack gap="$2" mt="$4" mb={Platform.OS === 'ios' ? '$6' : '$4'}>
-          <Button flex={1} onPress={() => SheetManager.hide(sheetId)}>
-            Cancel
+        <XStack gap="$3" mt="$4" mb={Platform.OS === 'ios' ? '$6' : '$4'}>
+          <Button flex={1} icon={ArrowLeft} onPress={() => SheetManager.hide(sheetId)}>
+            <Text>Cancel</Text>
           </Button>
-          <Button flex={1} themeInverse disabled={!name} onPress={handleCreate}>
-            Create Job
+          <Button flex={1} themeInverse icon={Plus} disabled={!name} onPress={handleCreate}>
+            <Text>Create Job</Text>
           </Button>
         </XStack>
       </ScrollView>
