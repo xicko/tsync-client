@@ -17,6 +17,6 @@
       "@/*": ["./packages/core/*"]
     }
   },
-  "include": ["apps/electron/**/*", "apps/rn/**/*", "packages/types/**/*"],
+  "include": ["apps/electron/**/*", "apps/rn/**/*", "packages/types/**/*", "packages/core/**/*"],
   "exclude": ["**/node_modules", "**/dist", "**/.expo", "**/.vite", "**/build"]
 }

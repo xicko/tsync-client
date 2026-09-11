@@ -14,6 +14,9 @@ import DenylistCreationSheet from '@/features/NotificationsSync/components/Sheet
 import AlertToggleSheet from '../../features/Settings/components/Sheets/AlertToggleSheet';
 import AlertDenylistEditorSheet from '../../features/Settings/components/Sheets/AlertDenylistEditorSheet';
 import InstalledAppsSheet from './InstalledAppsSheet';
+import StorageFileActionsSheet from '../../features/Storage/components/Sheets/StorageFileActionsSheet';
+import StorageFileUploadSheet from '../../features/Storage/components/Sheets/StorageFileUploadSheet';
+import { StorageFile } from '@/features/Storage/types/storage-file.interface';
 
 declare module 'react-native-actions-sheet' {
   interface Sheets {
@@ -81,6 +84,16 @@ declare module 'react-native-actions-sheet' {
     'installed-apps-sheet': SheetDefinition<{
       payload: {};
     }>;
+
+    'storage-file-actions-sheet': SheetDefinition<{
+      payload: {
+        file: StorageFile;
+      };
+    }>;
+
+    'storage-file-upload-sheet': SheetDefinition<{
+      payload: {};
+    }>;
   }
 }
 
@@ -101,6 +114,8 @@ export const Sheets = () => {
         'alert-toggle-sheet': AlertToggleSheet,
         'alert-denylist-editor-sheet': AlertDenylistEditorSheet,
         'installed-apps-sheet': InstalledAppsSheet,
+        'storage-file-actions-sheet': StorageFileActionsSheet,
+        'storage-file-upload-sheet': StorageFileUploadSheet,
       }}
     />
   );
