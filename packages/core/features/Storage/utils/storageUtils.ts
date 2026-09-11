@@ -30,7 +30,7 @@ export async function uploadFn(url: string, fileInput: UploadFileInput): Promise
       uri: fileInput.uri,
       name: fileInput.name,
       type: fileInput.type || 'application/octet-stream',
-    } as any);
+    });
   }
 
   return await fetch(url, {

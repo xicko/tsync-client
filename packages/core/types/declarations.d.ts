@@ -22,3 +22,16 @@ declare module '*.ttf' {
   const content: any;
   export default content;
 }
+
+interface ReactNativeFile {
+  uri: string;
+  name: string;
+  type: string;
+}
+
+interface FormData {
+  /*
+    strictly RN-only
+  */
+  append(name: string, value: string | Blob | ReactNativeFile, fileName?: string): void;
+}
