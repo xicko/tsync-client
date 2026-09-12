@@ -4,7 +4,7 @@ import { useSocketStore } from '@/store';
 import { RefreshCcw, Settings } from '@tamagui/lucide-icons';
 import { Button, useTheme } from 'tamagui';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SheetManager } from 'react-native-actions-sheet';
 import CustomTabBar from '@/components/CustomTabBar';
 import { useDevices } from '@/features/Devices/hooks/devices';
@@ -12,15 +12,88 @@ import { getTsyncNative } from '@/store/tsyncNativeStore';
 import { AppState, Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Constants from 'expo-constants';
-import { eventEmit } from '@/utils';
+import { eventEmit, showToast } from '@/utils';
 import DevicesHeaderRight from '@/features/Devices/components/Header/SocketConnectionHeader';
+import { pingServer } from '@/controller/sysController';
 
 export default function TabsLayout() {
-  const socket = useSocketStore((s) => s.socket);
   const lastDeviceUpdate = useDeviceStore((s) => s.lastDeviceUpdate);
   const tamaguiTheme = useTheme();
+  const thisTailscaleDevice = useDeviceStore((s) => s.thisTailscaleDevice);
 
   useDevices();
+
+  // SOCKET
+  const socket = useSocketStore((s) => s.socket);
+  const connectSocket = useSocketStore((s) => s.connectSocket);
+  const disconnectSocket = useSocketStore((s) => s.disconnectSocket);
+  const deviceId = thisTailscaleDevice?.id;
+  const deviceRef = useRef(thisTailscaleDevice);
+  useEffect(() => {
+    deviceRef.current = thisTailscaleDevice;
+  }, [thisTailscaleDevice]);
+  useEffect(
+    function initConnectSocket() {
+      const currentDevice = deviceRef.current;
+      if (currentDevice) connectSocket(currentDevice);
+      return () => {
+        disconnectSocket();
+      };
+    },
+    [deviceId, connectSocket, disconnectSocket]
+  );
+  useEffect(
+    function socketToast() {
+      if (socket) {
+        showToast({
+          text1: 'Connected to server',
+        });
+      } else {
+        showToast({
+          text1: 'Disconnected from server',
+        });
+      }
+    },
+    [socket]
+  );
+  useEffect(
+    function pingServerListener() {
+      let isMounted = true;
+      let prevIsConnected = false;
+      let failCount = 0;
+
+      const interval = setInterval(async () => {
+        if (!isMounted) return;
+        const isConnected = await pingServer();
+
+        if (!isConnected) {
+          failCount++;
+          if (failCount >= 10) getTsyncNative().connectTS();
+        } else {
+          failCount = 0;
+        }
+
+        const connected = isConnected && !prevIsConnected;
+        const disconnected = !isConnected && prevIsConnected;
+
+        if (connected) {
+          showToast({
+            text1: 'Connected to server',
+          });
+          const currentDevice = deviceRef.current;
+          if (currentDevice) connectSocket(currentDevice);
+        } else if (disconnected) {
+          showToast({
+            text1: 'Disconnected from server',
+          });
+        }
+        prevIsConnected = isConnected;
+      }, 5000);
+
+      return () => clearInterval(interval);
+    },
+    [deviceId, connectSocket]
+  );
 
   useEffect(function checkBatteryOptimizations() {
     const callback = async () => {

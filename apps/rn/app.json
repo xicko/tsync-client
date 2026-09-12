@@ -22,6 +22,19 @@
       ],
       "expo-font",
       [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "../../packages/core/assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#171717",
+            "image": "../../packages/core/assets/splash.png"
+          }
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
@@ -33,6 +46,12 @@
         }
       ],
       "expo-audio",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow tsync to use Face ID."
+        }
+      ],
       "expo-background-task",
       [
         "expo-asset",
@@ -53,6 +72,7 @@
       }
     },
     "orientation": "portrait",
+    "backgroundColor": "#000000",
     "icon": "../../packages/core/assets/icon.png",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
