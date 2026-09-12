@@ -164,6 +164,33 @@ export const osName = 'macOS';
 export const applicationId = 'com.tsync.client';
 export const nativeApplicationVersion = '1.0.0';
 
+// expo-file-system mocks
+export class File {
+  uri: string;
+  constructor(uri?: string) {
+    this.uri = uri || '';
+  }
+  info(): { exists: boolean; md5?: string } {
+    return { exists: false };
+  }
+  arrayBuffer(): Promise<ArrayBuffer> {
+    return Promise.resolve(new ArrayBuffer(0));
+  }
+  text(): Promise<string> {
+    return Promise.resolve('');
+  }
+}
+export class Directory {
+  uri: string;
+  constructor(uri?: string) {
+    this.uri = uri || '';
+  }
+}
+export class Paths {
+  static cache = '';
+  static document = '';
+}
+
 interface DummyConfig {
   (): null;
   expoConfig?: { name: string; version: string };

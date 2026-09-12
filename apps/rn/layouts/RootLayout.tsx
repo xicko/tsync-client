@@ -8,18 +8,15 @@ import { queryClient } from '@/utils';
 import { headerTextStyle } from '@/constants/theme.constants';
 import { StackNavDefaultBackButton } from '@/components/StackNavDefaultBackButton';
 import { StatusBar } from 'expo-status-bar';
-import { useDomainStore, useSocketStore, useStorageStore } from '@/store';
+import { useDomainStore, useStorageStore } from '@/store';
 import { useEffect, useState, useRef } from 'react';
-import { showToast } from '@/utils/toast';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/theme/toastConfig';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { Sheets } from '@/components/Sheets/Sheets';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import { getTsyncNative } from '@/store/tsyncNativeStore';
 import { useThemeStore } from '@/store/themeStore';
-import { setBackgroundColorAsync } from 'expo-system-ui';
-import { pingServer } from '@/controller/sysController';
+import * as SystemUI from 'expo-system-ui';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import {
   initializeOneSignal,
@@ -32,9 +29,12 @@ import { storage } from '@/utils/storage';
 import Constants from 'expo-constants';
 import { useStorageDependencyStore } from '@/features/Storage/store/storageDependencyStore';
 import { nativeUploadFn } from '../adapters';
+import * as SplashScreen from 'expo-splash-screen';
 
 (() => {
-  setBackgroundColorAsync('black');
+  SystemUI.setBackgroundColorAsync('black');
+
+  SplashScreen.preventAutoHideAsync();
 
   const isWeb = Platform.OS === 'web';
 
@@ -58,12 +58,12 @@ function RootLayoutContent() {
   const pathname = usePathname();
   const rootNavigationState = useRootNavigationState();
   const isNavigationReady = !!rootNavigationState?.key;
-  if (__DEV__) console.log(pathname);
-
   const thisTailscaleDevice = useDeviceStore((s) => s.thisTailscaleDevice);
+  if (__DEV__) console.log(pathname);
 
   // THEME
   const tamaguiTheme = useTheme();
+  const theme = useThemeStore((s) => s.theme);
 
   // FONT
   const [loaded] = useFonts({
@@ -87,40 +87,9 @@ function RootLayoutContent() {
     Inter_900BlackItalic: require('../../../packages/core/assets/fonts/Inter/Inter_BlackItalic.ttf'),
   });
 
-  // SOCKET
-  const socket = useSocketStore((s) => s.socket);
-  const connectSocket = useSocketStore((s) => s.connectSocket);
-  const disconnectSocket = useSocketStore((s) => s.disconnectSocket);
-  const deviceId = thisTailscaleDevice?.id;
-  const deviceRef = useRef(thisTailscaleDevice);
   useEffect(() => {
-    deviceRef.current = thisTailscaleDevice;
-  }, [thisTailscaleDevice]);
-  useEffect(
-    function initConnectSocket() {
-      const currentDevice = deviceRef.current;
-      if (currentDevice) connectSocket(currentDevice);
-
-      return () => {
-        disconnectSocket();
-      };
-    },
-    [deviceId, connectSocket, disconnectSocket]
-  );
-  useEffect(
-    function socketToast() {
-      if (socket) {
-        showToast({
-          text1: 'Connected to server',
-        });
-      } else {
-        showToast({
-          text1: 'Disconnected from server',
-        });
-      }
-    },
-    [socket]
-  );
+    if (loaded && isNavigationReady) void SplashScreen.hideAsync();
+  }, [isNavigationReady, loaded]);
 
   // lololol
   useEffect(function injectAtRuntime() {
@@ -177,14 +146,17 @@ function RootLayoutContent() {
     },
     [isNavigationReady]
   );
-  useEffect(() => {
-    if (Platform.OS === 'web' || !canOneSignalLogin) return;
-    const id = thisTailscaleDevice?.id;
-    if (!id) return;
-    setupOneSignalUser(id);
-  }, [thisTailscaleDevice?.id, canOneSignalLogin]);
   useEffect(
-    function routeAfterNavReady() {
+    function loginOneSignal() {
+      if (Platform.OS === 'web' || !canOneSignalLogin) return;
+      const id = thisTailscaleDevice?.id;
+      if (!id) return;
+      setupOneSignalUser(id);
+    },
+    [thisTailscaleDevice?.id, canOneSignalLogin]
+  );
+  useEffect(
+    function routeAfterNavReadyPN() {
       if (isNavigationReady && pendingNotificationTarget.current) {
         const target = pendingNotificationTarget.current;
         pendingNotificationTarget.current = null;
@@ -194,46 +166,6 @@ function RootLayoutContent() {
       }
     },
     [isNavigationReady]
-  );
-
-  // Ping server
-  useEffect(
-    function pingServerListener() {
-      let isMounted = true;
-      let prevIsConnected = false;
-      let failCount = 0;
-
-      const interval = setInterval(async () => {
-        if (!isMounted) return;
-        const isConnected = await pingServer();
-
-        if (!isConnected) {
-          failCount++;
-          if (failCount >= 10) getTsyncNative().connectTS();
-        } else {
-          failCount = 0;
-        }
-
-        const connected = isConnected && !prevIsConnected;
-        const disconnected = !isConnected && prevIsConnected;
-
-        if (connected) {
-          showToast({
-            text1: 'Connected to server',
-          });
-          const currentDevice = deviceRef.current;
-          if (currentDevice) connectSocket(currentDevice);
-        } else if (disconnected) {
-          showToast({
-            text1: 'Disconnected from server',
-          });
-        }
-        prevIsConnected = isConnected;
-      }, 5000);
-
-      return () => clearInterval(interval);
-    },
-    [deviceId, connectSocket]
   );
 
   useEffect(function appStateListener() {
@@ -259,7 +191,7 @@ function RootLayoutContent() {
   return (
     <KeyboardProvider>
       <SheetProvider>
-        {Platform.OS === 'android' ? <StatusBar style="auto" /> : null}
+        {Platform.OS === 'android' ? <StatusBar style={theme === 'light' ? 'dark' : 'light'} /> : null}
 
         <Stack
           screenOptions={{
