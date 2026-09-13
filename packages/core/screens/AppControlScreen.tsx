@@ -31,6 +31,7 @@ import { IconProps } from '@tamagui/helpers-icon';
 import { Section } from '@/components';
 import { showToast } from '@/utils/toast';
 import { SheetManager } from 'react-native-actions-sheet';
+import * as Updates from 'expo-updates';
 
 interface AppControlRow {
   label: string;
@@ -53,11 +54,13 @@ const AppControlScreen = () => {
   const [notificationPermission, setNotificationPermission] = useState<boolean>(false);
 
   const updateNotificationListenerState = () => {
+    if (Platform.OS !== 'android') return;
     const res = getTsyncNative().isNotificationListenerEnabled();
     setIsNotificationListenerEnabled(res);
   };
 
   const updateBatteryState = () => {
+    if (Platform.OS !== 'android') return;
     const res = getTsyncNative().isIgnoringBatteryOptimizations();
     setIsIgnoringBatteryOptimizations(res);
   };
@@ -144,7 +147,7 @@ const AppControlScreen = () => {
         options: [
           {
             label: 'Location: permission',
-            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            shown: Platform.OS === 'android' || Platform.OS === 'web' || Platform.OS === 'ios',
             disabled: haveLocationAccess.permission,
             icon: Navigation,
             onPress: async () => {
@@ -153,7 +156,7 @@ const AppControlScreen = () => {
           },
           {
             label: 'Location: service',
-            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            shown: Platform.OS === 'android' || Platform.OS === 'web' || Platform.OS === 'ios',
             disabled: haveLocationAccess.service,
             icon: Navigation,
             onPress: async () => {
@@ -162,7 +165,7 @@ const AppControlScreen = () => {
           },
           {
             label: 'Location: precise',
-            shown: Platform.OS === 'android',
+            shown: Platform.OS === 'android' || Platform.OS === 'ios',
             disabled: haveLocationAccess.precise,
             icon: Navigation,
             onPress: async () => {
@@ -176,7 +179,7 @@ const AppControlScreen = () => {
         options: [
           {
             label: 'Notification Permission',
-            shown: Platform.OS === 'android',
+            shown: Platform.OS === 'android' || Platform.OS === 'ios',
             disabled: notificationPermission,
             icon: MessageSquareDot,
             onPress: async () => {
@@ -250,9 +253,15 @@ const AppControlScreen = () => {
         options: [
           {
             label: 'Reload',
-            shown: Platform.OS === 'android' || Platform.OS === 'web',
+            shown: Platform.OS === 'android' || Platform.OS === 'web' || Platform.OS === 'ios',
             icon: RefreshCcw,
-            onPress: () => getTsyncNative().reloadApp(),
+            onPress: async () => {
+              if (Platform.OS === 'ios') {
+                await Updates.reloadAsync();
+                return;
+              }
+              getTsyncNative().reloadApp();
+            },
           },
           {
             label: 'Update isRooted (Root)',
