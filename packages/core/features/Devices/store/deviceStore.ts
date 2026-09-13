@@ -3,6 +3,8 @@ import { getTsyncNative } from '@/store/tsyncNativeStore';
 import { DeviceListItem, TailscaleDevice } from '@shared/types';
 import { create } from 'zustand';
 import { useStorageStore } from '@/store';
+import { Platform } from 'react-native';
+import * as Battery from 'expo-battery';
 
 interface DeviceStoreState {
   devices: TailscaleDevice[];
@@ -49,6 +51,7 @@ export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
   updateIsRooted: () => {
     let res = false;
     try {
+      if (Platform.OS !== 'android') throw new Error('Platform not supported');
       res = getTsyncNative().isRooted();
     } catch (error) {
       if (error instanceof Error && __DEV__) console.log('isRooted', error.message);
@@ -60,26 +63,41 @@ export const useDeviceStore = create<DeviceStoreState>((set, get) => ({
   },
 
   updateBatteryStatus: async () => {
-    const thisTailscaleDevice = get().thisTailscaleDevice;
+    try {
+      const thisTailscaleDevice = get().thisTailscaleDevice;
 
-    const res = await getTsyncNative().retrieveBatteryStatus();
+      let res: string | null = await getTsyncNative().retrieveBatteryStatus();
 
-    if (!res) return false;
+      if (!res) {
+        const isBatterySupported = await Battery?.isAvailableAsync?.();
+        if (isBatterySupported) {
+          try {
+            const level = await Battery.getBatteryLevelAsync();
+            const isCharging = (await Battery.getBatteryStateAsync()) === Battery.BatteryState.CHARGING;
+            res = `${Math.round(level * 100)}:${String(isCharging)}:${Date.now()}`;
+          } catch {}
+        }
+      }
 
-    const [l, p, t] = res?.split(':');
+      if (!res) return false;
 
-    const level = Number(l);
-    const isPlugged = p === 'true';
-    const timestamp = Number(t);
+      const [l, p, t] = res?.split(':');
 
-    if (!thisTailscaleDevice?.id || isNaN(level) || isNaN(timestamp)) return false;
+      const level = Number(l);
+      const isPlugged = p === 'true';
+      const timestamp = Number(t);
 
-    const result = await updateBatteryStatus(thisTailscaleDevice?.id, {
-      level,
-      isPlugged,
-      timestamp,
-    });
+      if (!thisTailscaleDevice?.id || isNaN(level) || isNaN(timestamp)) return false;
 
-    return result;
+      const result = await updateBatteryStatus(thisTailscaleDevice?.id, {
+        level,
+        isPlugged,
+        timestamp,
+      });
+
+      return result;
+    } catch {
+      return false;
+    }
   },
 }));

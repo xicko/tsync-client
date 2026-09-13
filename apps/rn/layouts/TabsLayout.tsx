@@ -68,7 +68,7 @@ export default function TabsLayout() {
 
         if (!isConnected) {
           failCount++;
-          if (failCount >= 10) getTsyncNative().connectTS();
+          if (failCount >= 10 && Platform.OS === 'android') getTsyncNative().connectTS();
         } else {
           failCount = 0;
         }
@@ -123,7 +123,7 @@ export default function TabsLayout() {
   const [isHeadless] = useState<boolean>(
     (() => {
       const HEADLESS = Constants.default.expoConfig?.extra?.EXPO_PUBLIC_HEADLESS_STR;
-      return !!(HEADLESS && String(Device.modelName).toLowerCase().includes(HEADLESS));
+      return !!(HEADLESS && String(Device.modelName).toLowerCase().includes(HEADLESS)) && Platform.OS === 'android';
     })()
   );
   useEffect(

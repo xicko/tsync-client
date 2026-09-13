@@ -142,8 +142,7 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({ state, navigation }) => {
         items="center"
         justify="space-between"
         px="$3"
-        gap="$5"
-        elevation="$2">
+        gap="$5">
         <TabItem
           label="Devices"
           icon={<MonitorSmartphone strokeWidth={1.3} color={'$color7'} />}

@@ -5,6 +5,7 @@ import ActionSheet, { SheetProps } from 'react-native-actions-sheet';
 import { Button, Input, XGroup, YStack, Text, useTheme } from 'tamagui';
 import { showToast } from '@/utils/toast';
 import { Platform } from 'react-native';
+import * as Updates from 'expo-updates';
 
 const DomainChangeSheet: React.FC<SheetProps<'domain-change-sheet'>> = ({ sheetId }) => {
   const domainAddress = useDomainStore((s) => s.domainAddress);
@@ -26,6 +27,8 @@ const DomainChangeSheet: React.FC<SheetProps<'domain-change-sheet'>> = ({ sheetI
         getTsyncNative().reloadApp();
       } else if (Platform.OS === 'web') {
         window.location.reload();
+      } else {
+        Updates.reloadAsync();
       }
     }
   };

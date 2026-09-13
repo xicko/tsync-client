@@ -14,6 +14,16 @@
       "expo-router",
       "@rnrepo/expo-config-plugin",
       [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent",
+          "defaultLaunchURL": "http://localhost:8081",
+          "android": {
+            "defaultLaunchURL": "http://10.0.0.2:8081"
+          }
+        }
+      ],
+      [
         "expo-secure-store",
         {
           "configureAndroidBackup": false,
@@ -78,7 +88,12 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.xicko.tsync"
+      "bundleIdentifier": "com.xicko.tsync",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
