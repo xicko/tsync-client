@@ -10,8 +10,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import xicko.modules.tsyncnative.BatteryWorker
 import xicko.modules.tsyncnative.ConnectionWorker
-import xicko.modules.tsyncnative.helpers.connectTSRoot
-import xicko.modules.tsyncnative.helpers.disableOptimizationsRoot
+import xicko.modules.tsyncnative.extensions.connectTailscaleRoot
+import xicko.modules.tsyncnative.extensions.disableOptimizationsRoot
 import java.util.concurrent.TimeUnit
 
 class BootCompletedReceiver: BroadcastReceiver() {
@@ -22,10 +22,10 @@ class BootCompletedReceiver: BroadcastReceiver() {
             ctx?.let {
                 val workManager = WorkManager.getInstance(it)
 
-                disableOptimizationsRoot(it, null)
-                disableOptimizationsRoot(it, "com.tailscale.ipn")
+                it.disableOptimizationsRoot()
+                it.disableOptimizationsRoot("com.tailscale.ipn")
 
-                connectTSRoot()
+                connectTailscaleRoot()
 
                 // ==================================================================
                 // Connection Worker

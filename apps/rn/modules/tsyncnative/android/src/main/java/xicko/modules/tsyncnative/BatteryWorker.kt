@@ -17,8 +17,8 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import xicko.modules.tsyncnative.data.TailscaleDevice
-import xicko.modules.tsyncnative.helpers.JsonProvider
-import xicko.modules.tsyncnative.helpers.retrieveBatteryStatus
+import xicko.modules.tsyncnative.extensions.JsonProvider
+import xicko.modules.tsyncnative.extensions.retrieveBatteryStatus
 
 class BatteryWorker(
   context: Context,
@@ -48,7 +48,7 @@ class BatteryWorker(
     try {
       val thisTailscaleDevice = JsonProvider.json.decodeFromString<TailscaleDevice>(thisTailscaleDeviceStr)
 
-      val batteryStatus = retrieveBatteryStatus(this.applicationContext) ?: throw Exception("batteryStatus not found")
+      val batteryStatus = this.applicationContext.retrieveBatteryStatus() ?: throw Exception("batteryStatus not found")
 
       val response = client.patch("$domain/api/devices/${thisTailscaleDevice.id}/update-battery-status") {
         contentType(ContentType.Application.Json)

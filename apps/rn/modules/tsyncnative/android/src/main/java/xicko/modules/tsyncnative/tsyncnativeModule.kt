@@ -18,23 +18,8 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import xicko.modules.tsyncnative.helpers.*
+import xicko.modules.tsyncnative.extensions.*
 import java.util.concurrent.TimeUnit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class tsyncnativeModule : Module() {
   private companion object {
@@ -80,14 +65,11 @@ class tsyncnativeModule : Module() {
     }
 
     Function("isIgnoringBatteryOptimizations") {
-      val ctx = appContext.reactContext
-      if (ctx != null) return@Function isIgnoringBatteryOptimizations(ctx)
-      return@Function false
+      appContext.reactContext?.isIgnoringBatteryOptimizations() ?: false
     }
 
     Function("disableBatteryOptimizations") { packageName: String? ->
-      val ctx = appContext.reactContext
-      if (ctx != null) disableBatteryOptimizations(ctx, packageName)
+      appContext.reactContext?.disableBatteryOptimizations(packageName)
     }
 
     Function("startConnectionWorker") {
@@ -127,18 +109,15 @@ class tsyncnativeModule : Module() {
     }
 
     Function("openTS") {
-      val ctx = appContext.reactContext
-      if (ctx != null) openTS(ctx)
+      appContext.reactContext?.openTailscale()
     }
 
     Function("connectTS") {
-      val ctx = appContext.reactContext
-      if (ctx != null) connectTS(ctx)
+      appContext.reactContext?.connectTailscale()
     }
 
     Function("disconnectTS") {
-      val ctx = appContext.reactContext
-      if (ctx != null) disconnectTS(ctx)
+      appContext.reactContext?.disconnectTailscale()
     }
 
     Function("isRooted") {
@@ -146,44 +125,36 @@ class tsyncnativeModule : Module() {
     }
 
     Function("openTSRoot") {
-      openTSRoot()
+      openTailscaleRoot()
     }
 
     Function("connectTSRoot") {
-      connectTSRoot()
+      connectTailscaleRoot()
     }
 
     Function("disableOptimizationsRoot") { packageName: String? ->
-      val ctx = appContext.reactContext
-      val res = if (ctx != null) disableOptimizationsRoot(ctx, packageName) else false
-      return@Function res
+      appContext.reactContext?.disableOptimizationsRoot(packageName) ?: false
     }
 
     Function("blockNotificationsRoot") { packageName: String? ->
-      val ctx = appContext.reactContext
-      val res = if (ctx != null) blockNotificationsRoot(ctx, packageName) else false
-      return@Function res
+      appContext.reactContext?.blockNotificationsRoot(packageName) ?: false
     }
 
     AsyncFunction("retrieveBatteryStatus") Coroutine { ->
-      val context = appContext.reactContext
-      val result = retrieveBatteryStatus(context)
-      "${result?.level}:${result?.isPlugged}:${result?.timestamp}"
+      val result = appContext.reactContext?.retrieveBatteryStatus() ?: return@Coroutine null
+      "${result.level}:${result.isPlugged}:${result.timestamp}"
     }
 
     Function("isNotificationListenerEnabled") {
-      val context = appContext.reactContext
-      isNotificationListenerEnabled(context)
+      appContext.reactContext?.isNotificationListenerEnabled() ?: false
     }
 
     Function("startNotificationListenerService") {
-      val context = appContext.reactContext
-      startNotificationListenerService(context)
+      appContext.reactContext?.startNotificationListenerService()
     }
 
     Function("retrieveApps") {
-      val context = appContext.reactContext
-      retrieveApps(context)
+      appContext.reactContext?.retrieveApps() ?: ""
     }
   }
 }
