@@ -1,5 +1,5 @@
 import { useNotificationsSyncList } from '@/features/NotificationsSync/hooks/notifications-sync';
-import { eventEmit } from '@/utils';
+import { eventEmit, trimHostname } from '@/utils';
 import { Filter, Settings } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
@@ -141,7 +141,7 @@ const NotificationsListScreen = () => {
                       ) : null}
 
                       {notif.tailscaleDevice?.name ? (
-                        <Text color="$color8">{notif?.tailscaleDevice?.name?.split('.')[0] || ''}</Text>
+                        <Text color="$color8">{trimHostname(notif?.tailscaleDevice?.name)}</Text>
                       ) : null}
 
                       <Text color="$color8">{notif.android.packageName}</Text>

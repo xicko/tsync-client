@@ -5,6 +5,7 @@ import { useCreateCron } from '@/features/Cron/hooks/crons';
 import { showToast } from '@/utils/toast';
 import { Platform } from 'react-native';
 import { ArrowLeft, Plus } from '@tamagui/lucide-icons';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const TYPES = ['REMINDER', 'COUNT', 'HEALTHCHECK'];
 
@@ -83,9 +84,7 @@ const CronCreateSheet: React.FC<SheetProps<'cron-create-sheet'>> = ({ sheetId })
   return (
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: theme.background.val }}>
       <ScrollView contentContainerStyle={{ gap: 14, padding: 24 }} keyboardShouldPersistTaps="handled">
-        <Text fontWeight="bold" fontSize="$6">
-          Create New Cron Job
-        </Text>
+        <SheetHeader title="Create New Cron Job" sheetId={sheetId} />
 
         <YStack gap="$2">
           <Text fontSize="$3" color="$color10">

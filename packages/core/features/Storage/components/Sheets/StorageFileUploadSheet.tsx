@@ -14,6 +14,7 @@ import * as Crypto from 'expo-crypto';
 import { File } from 'expo-file-system';
 import SparkMD5 from 'spark-md5';
 import { sha256 as jsSha256 } from 'js-sha256';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId }) => {
   const isWeb = Platform.OS === 'web';
@@ -135,7 +136,7 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
       gestureEnabled={!uploadMutation.isPending}
       containerStyle={{ backgroundColor: theme.background.val }}>
       <View p="$5" gap="$4">
-        <H6>Upload File</H6>
+        <SheetHeader title="Upload File" sheetId={sheetId} />
 
         {selectedAsset && fileInfo ? (
           <XStack items="center" gap="$3">

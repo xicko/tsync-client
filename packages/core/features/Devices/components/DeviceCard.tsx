@@ -2,18 +2,12 @@ import { DeviceListItem } from '@shared/types';
 import { OpaqueColorValue, Platform, TouchableOpacity } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import { Text, View, XStack, Button, YStack, GetThemeValueForKey, useTheme } from 'tamagui';
-import { Image as ExpoImage } from 'expo-image';
 import { Hotel, Zap } from '@tamagui/lucide-icons';
-import { useThemeStore } from '@/store/themeStore';
-
-import androidIcon from '@/assets/images/android600.png';
-import appleIcon from '@/assets/images/apple600.png';
-import appleDarkIcon from '@/assets/images/apple600dark.png';
-import windowsIcon from '@/assets/images/windows600.png';
-import linuxIcon from '@/assets/images/linux600.png';
+import { PlatformIcon } from '@/components/PlatformIcon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import BatteryInfo from './BatteryInfo';
+import { trimHostname } from '@/utils';
 dayjs.extend(relativeTime);
 
 interface DeviceCardProps {
@@ -34,7 +28,6 @@ function formatLastSeen(lastSeen?: string): string {
 
 export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
   const isWeb = Platform.OS === 'web';
-  const theme = useThemeStore((s) => s.theme);
   const tamaguiTheme = useTheme();
   const primaryIp = item?.addresses?.[0] ?? '—';
   const hasRoutes = item?.enabledRoutes?.length > 0;
@@ -65,16 +58,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
         {/* Header row */}
         <XStack justify="space-between" items="center" mb="$2" gap={'$2'}>
           <View width={24} height={24} m="$2">
-            <ExpoImage
-              source={(() => {
-                if (item?.os === 'windows') return windowsIcon;
-                if (item?.os === 'macOS' || item.os === 'iOS') return theme === 'light' ? appleIcon : appleDarkIcon;
-                if (item?.os === 'android') return androidIcon;
-                if (item?.os === 'linux') return linuxIcon;
-                return '';
-              })()}
-              style={{ width: 24, height: 24 }}
-            />
+            <PlatformIcon platform={item?.os} size={24} />
 
             {item?.isHost === true ? (
               <View position="absolute" b={-6} r={-8} z={100}>
@@ -85,7 +69,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
 
           <YStack flex={1} mr="$3">
             <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
-              {item?.name?.split('.')[0]}
+              {trimHostname(item?.name)}
             </Text>
             <Text fontSize="$2" color="$color10" numberOfLines={1}>
               {item?.user}

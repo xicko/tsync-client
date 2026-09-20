@@ -27,7 +27,7 @@ import xicko.modules.tsyncnative.data.CollectedNotificationAndroid
 import xicko.modules.tsyncnative.data.CollectedNotificationAndroidData
 import xicko.modules.tsyncnative.data.CollectedNotificationAndroidDataList
 import xicko.modules.tsyncnative.data.TailscaleDevice
-import xicko.modules.tsyncnative.helpers.JsonProvider
+import xicko.modules.tsyncnative.extensions.JsonProvider
 import java.util.concurrent.Executors
 
 fun isBlacklistedNotification(sbn: StatusBarNotification?): Boolean {

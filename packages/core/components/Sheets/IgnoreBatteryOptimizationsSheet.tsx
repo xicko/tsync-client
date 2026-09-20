@@ -1,6 +1,7 @@
 import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-sheet';
 import { Button, XGroup, YStack, Text, useTheme } from 'tamagui';
 import { getTsyncNative } from '@/store/tsyncNativeStore';
+import SheetHeader from './SheetHeader';
 
 const IgnoreBatteryOptimizationsSheet: React.FC<SheetProps<'ignore-battery-optimizations-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
@@ -12,7 +13,7 @@ const IgnoreBatteryOptimizationsSheet: React.FC<SheetProps<'ignore-battery-optim
       snapPoints={[100]}
       containerStyle={{ backgroundColor: theme.background.val }}>
       <YStack p={'$5'} gap={'$4'}>
-        <Text>Ignore Battery Optimizations</Text>
+        <SheetHeader title="Ignore Battery Optimizations" showCloseButton={false} />
 
         <XGroup gap={'$0.5'}>
           <Button

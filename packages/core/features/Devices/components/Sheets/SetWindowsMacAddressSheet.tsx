@@ -2,6 +2,7 @@ import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-shee
 import { H6, Text, View, Input, Button, useTheme, XStack } from 'tamagui';
 import { ArrowLeft, Check } from '@tamagui/lucide-icons';
 import { useState } from 'react';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const SetWindowsMacAddressSheet: React.FC<SheetProps<'set-windows-mac-address-sheet'>> = ({ sheetId, payload }) => {
   const theme = useTheme();
@@ -11,7 +12,7 @@ const SetWindowsMacAddressSheet: React.FC<SheetProps<'set-windows-mac-address-sh
   return (
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: theme.background.val }}>
       <View p="$5" gap="$3">
-        <H6>Set Windows MAC address</H6>
+        <SheetHeader title="Set Windows MAC address" sheetId={sheetId} />
         <Input placeholder="MAC address" value={macAddress} onChangeText={setMacAddress} />
         <XStack gap="$3">
           <Button flex={1} icon={ArrowLeft} onPress={() => SheetManager.hide(sheetId)}>

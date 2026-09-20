@@ -4,24 +4,15 @@ import { setAdbDeviceIdentifier } from '@/features/Devices/controller/adbControl
 import { showToast } from '@/utils/toast';
 import * as Linking from 'expo-linking';
 import * as IntentLauncher from 'expo-intent-launcher';
-import { Image as ExpoImage } from 'expo-image';
 import { ClipboardCopy, IdCard, Power, ScreenShare, Terminal } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
-
-import androidIcon from '@/assets/images/android600.png';
-import appleIcon from '@/assets/images/apple600.png';
-import appleDarkIcon from '@/assets/images/apple600dark.png';
-import windowsIcon from '@/assets/images/windows600.png';
-import linuxIcon from '@/assets/images/linux600.png';
 import { wakeOnLan, setWindowsMacAddress } from '@/features/Devices/controller/devicesController';
 import { eventEmit } from '@/utils';
 import * as Clipboard from 'expo-clipboard';
-import { useThemeStore } from '@/store/themeStore';
+import { PlatformIcon } from '@/components/PlatformIcon';
 
 const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ sheetId, payload }) => {
   const device = payload?.device!;
-
-  const theme = useThemeStore((s) => s.theme);
   const tamaguiTheme = useTheme();
 
   const onWOL = async () => {
@@ -146,16 +137,7 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: tamaguiTheme.background.val }}>
       <View p="$5" gap="$3">
         <XGroup p="$2" items="center" gap="$2">
-          <ExpoImage
-            source={(() => {
-              if (device.os === 'windows') return windowsIcon;
-              if (device.os === 'macOS') return theme === 'light' ? appleIcon : appleDarkIcon;
-              if (device.os === 'android') return androidIcon;
-              if (device.os === 'linux') return linuxIcon;
-              return '';
-            })()}
-            style={{ width: 28, height: 28, margin: 8 }}
-          />
+          <PlatformIcon platform={device.os} size={28} style={{ margin: 8 }} />
 
           <YStack flex={1}>
             <H6 numberOfLines={1} ellipsizeMode="tail" maxW={'84%'} overflow="hidden">

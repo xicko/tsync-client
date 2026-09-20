@@ -33,8 +33,8 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   blockNotificationsRoot(packageName?: string): boolean {
     return false;
   }
-  retrieveBatteryStatus(): string {
-    return '';
+  retrieveBatteryStatus(): string | null {
+    return null;
   }
 
   isNotificationListenerEnabled(): boolean {

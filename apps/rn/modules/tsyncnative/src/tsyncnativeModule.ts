@@ -21,7 +21,7 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
 
   disableOptimizationsRoot(packageName?: string): boolean;
   blockNotificationsRoot(packageName?: string): boolean;
-  retrieveBatteryStatus(): Promise<string>;
+  retrieveBatteryStatus(): Promise<string | null>;
 
   isNotificationListenerEnabled(): boolean;
   startNotificationListenerService(): void;

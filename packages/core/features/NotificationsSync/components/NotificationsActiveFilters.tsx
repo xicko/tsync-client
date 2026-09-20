@@ -5,6 +5,7 @@ import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { Button, ScrollView, Text, XStack } from 'tamagui';
 import { X } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
+import { trimHostname } from '@/utils';
 
 interface FilterChipProps {
   label: string;
@@ -74,7 +75,7 @@ export const NotificationsActiveFilters: React.FC = () => {
 
         {activeFilters.tailscaleId.map((id) => {
           const device = devices.find((d) => d.id === id);
-          const displayName = device ? device.name?.split('.')[0] || device.name : id;
+          const displayName = device ? trimHostname(device.name) : id;
           return (
             <FilterChip
               key={id}

@@ -8,13 +8,9 @@ import {
 import { useState } from 'react';
 import { Check } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
-import { Image as ExpoImage } from 'expo-image';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
-
-import androidIcon from '@/assets/images/android600.png';
-import appleIcon from '@/assets/images/apple600.png';
-import windowsIcon from '@/assets/images/windows600.png';
-import linuxIcon from '@/assets/images/linux600.png';
+import { PlatformIcon } from '@/components/PlatformIcon';
+import { trimHostname } from '@/utils';
 
 const OS_ARRAY = [
   {
@@ -24,27 +20,27 @@ const OS_ARRAY = [
   {
     value: 'android' as const,
     label: 'Android',
-    icon: <ExpoImage source={androidIcon} style={{ width: 16, height: 16 }} />,
+    icon: <PlatformIcon platform="android" size={16} />,
   },
   {
     value: 'ios' as const,
     label: 'iOS',
-    icon: <ExpoImage source={appleIcon} style={{ width: 16, height: 16 }} />,
+    icon: <PlatformIcon platform="ios" size={16} />,
   },
   {
     value: 'windows' as const,
     label: 'Windows',
-    icon: <ExpoImage source={windowsIcon} style={{ width: 16, height: 16 }} />,
+    icon: <PlatformIcon platform="windows" size={16} />,
   },
   {
     value: 'linux' as const,
     label: 'Linux',
-    icon: <ExpoImage source={linuxIcon} style={{ width: 16, height: 16 }} />,
+    icon: <PlatformIcon platform="linux" size={16} />,
   },
   {
     value: 'macos' as const,
     label: 'macOS',
-    icon: <ExpoImage source={appleIcon} style={{ width: 16, height: 16 }} />,
+    icon: <PlatformIcon platform="macos" size={16} />,
   },
 ];
 
@@ -126,7 +122,7 @@ const NotificationsSyncListFilterSheet: React.FC<SheetProps<'notifications-sync-
                           }));
                         }
                       }}>
-                      <Text>{device?.name?.split('.')[0] || device.id}</Text>
+                      <Text>{trimHostname(device?.name) || device.id}</Text>
                     </Button>
                   ))}
               </XStack>

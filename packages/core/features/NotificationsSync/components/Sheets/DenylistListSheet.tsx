@@ -5,7 +5,8 @@ import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { useMemo } from 'react';
 import { useDenylistList, useDeleteDenylistItem } from '../../hooks/denylist';
 import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl, Alert, Platform } from 'react-native';
-import { showToast } from '@/utils/toast';
+import { showToast, trimHostname } from '@/utils';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetId, payload }) => {
   const theme = useTheme();
@@ -66,9 +67,7 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
       <View p={'$4'} gap={'$3'} maxH={dimensions.height * 0.84}>
-        <View>
-          <H6>Denylist</H6>
-        </View>
+        <SheetHeader title="Denylist" sheetId={sheetId} />
 
         <ScrollView
           style={{ borderRadius: 8, overflow: 'hidden' }}
@@ -95,7 +94,7 @@ const DenylistListSheet: React.FC<SheetProps<'denylist-list-sheet'>> = ({ sheetI
                   ) : null}
 
                   {item.tailscaleId ? (
-                    <Text>{tailscaleDevices.find((d) => d.id === item.tailscaleId)?.name?.split('.')[0] || ''}</Text>
+                    <Text>{trimHostname(tailscaleDevices.find((d) => d.id === item.tailscaleId)?.name)}</Text>
                   ) : null}
                 </YStack>
               </Button>

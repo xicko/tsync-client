@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 import dayjs from 'dayjs';
 import { Copy } from '@tamagui/lucide-icons';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
+import { trimHostname } from '@/utils';
 import { MessageType } from '../types/message.interface';
 
 const MessageScreen = () => {
@@ -95,7 +96,7 @@ const MessageScreen = () => {
                     opacity={0.7}
                     color={isMe ? tamaguiTheme.brand8 : undefined}
                     fontWeight={isMe ? 'bold' : 'normal'}>
-                    {item.tailscaleDeviceData.name?.split('.')[0] || 'Unknown'}
+                    {trimHostname(item.tailscaleDeviceData.name) || 'Unknown'}
                   </Text>
 
                   <Text fontSize={11} opacity={0.7}>
