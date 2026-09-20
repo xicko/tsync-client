@@ -1,6 +1,6 @@
 import { useSocketStore } from '@/store';
 import { showToast } from '@/utils/toast';
-import androidIcon from '@/assets/images/android600.png';
+import { PlatformIcon } from '@/components/PlatformIcon';
 import {
   ArrowDown,
   ChevronDown,
@@ -41,7 +41,6 @@ import {
 } from 'tamagui';
 import { TailscaleDevice } from '@shared/types';
 import { SheetManager } from 'react-native-actions-sheet';
-import { Image as ExpoImage } from 'expo-image';
 import { ShellEventPayload } from '@/types/shell.interface';
 
 const QuickActionButton = ({
@@ -199,7 +198,7 @@ const ShellScreen = () => {
           }}
           onPress={onDeviceSelector}>
           <XStack gap={'$2'} items="center">
-            <ExpoImage source={androidIcon} style={{ width: 18, height: 18 }} />
+            <PlatformIcon platform="android" size={18} />
             <Text>{selectedDevice?.name?.split('.')[0] || 'Select Device'}</Text>
           </XStack>
         </Button>
