@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image as ExpoImage, ImageProps } from 'expo-image';
 import { useThemeStore } from '@/store/themeStore';
+import { StyleSheet } from 'react-native';
 import androidIcon from '@/assets/images/android600.png';
 import appleIcon from '@/assets/images/apple600.png';
 import appleDarkIcon from '@/assets/images/apple600dark.png';
@@ -28,7 +29,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform, size = 24,
 
   if (!source) return null;
 
-  return <ExpoImage source={source} style={[{ width: size, height: size }, style]} {...props} />;
+  return <ExpoImage source={source} style={StyleSheet.flatten([{ width: size, height: size }, style])} {...props} />;
 };
 
 export default PlatformIcon;
