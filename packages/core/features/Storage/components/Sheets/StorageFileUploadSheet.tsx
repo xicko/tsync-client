@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-sheet';
-import { Button, H6, Text, View, XStack, YStack, useTheme, Spinner, Switch } from 'tamagui';
-import { ArrowLeft, FileUp, Upload, X } from '@tamagui/lucide-icons';
+import { Button, Text, View, XStack, YStack, useTheme, Spinner, Switch } from 'tamagui';
+import { ArrowLeft, FileDown, FileUp, Upload, X } from '@tamagui/lucide-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { showToast } from '@/utils/toast';
 import { useUploadFile } from '../../hooks/storage';
@@ -11,12 +11,12 @@ import DatePicker from 'react-native-date-picker';
 import { Platform } from 'react-native';
 import { useThemeStore } from '@/store';
 import * as Crypto from 'expo-crypto';
-import { File } from 'expo-file-system';
+import { File as ExpoFile } from 'expo-file-system';
 import SparkMD5 from 'spark-md5';
 import { sha256 as jsSha256 } from 'js-sha256';
 import SheetHeader from '@/components/Sheets/SheetHeader';
 
-const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId }) => {
+const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> = ({ sheetId, payload }) => {
   const isWeb = Platform.OS === 'web';
   const theme = useTheme();
   const themeState = useThemeStore((s) => s.theme);
@@ -27,6 +27,113 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
   const [selectedDate, setSelectedDate] = useState<Date>(dayjs().add(3, 'day').toDate());
   const uploadMutation = useUploadFile();
 
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    SheetManager.update('storage-file-upload-sheet', {
+      payload: { file },
+    });
+  };
+
+  const processFile = async (input: {
+    file?: File;
+    uri?: string;
+    name?: string;
+    mimeType?: string;
+    size?: number;
+    lastModified?: number;
+  }) => {
+    try {
+      let uri = input.uri || '';
+      let name = input.name || input.file?.name || 'unknown';
+      let mimeType = input.mimeType || input.file?.type || '';
+      let size = input.size || input.file?.size || 0;
+      let md5: string | null = null;
+      let sha256: string | null = null;
+
+      if (isWeb && input.file && !uri) {
+        uri = URL.createObjectURL(input.file);
+      }
+
+      if (!isWeb && uri) {
+        const file = new ExpoFile(uri);
+        const info = file.info({ md5: true });
+        if (info.md5) md5 = info.md5 || null;
+      }
+
+      const arrayBuffer = await (async () => {
+        if (isWeb && input.file) return await input.file.arrayBuffer();
+        if (!isWeb && uri) return await new ExpoFile(uri).arrayBuffer();
+        return null;
+      })();
+
+      if (arrayBuffer) {
+        if (!md5) md5 = SparkMD5.ArrayBuffer.hash(arrayBuffer);
+
+        if (!isWeb) {
+          const uint8 = new Uint8Array(arrayBuffer);
+          const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, uint8);
+          sha256 = Array.from(new Uint8Array(digest))
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+        } else {
+          sha256 = jsSha256(arrayBuffer);
+        }
+      }
+
+      if (!sha256 || !md5) {
+        showToast({
+          text1: 'Failed to compute hashes of the file',
+        });
+        return;
+      }
+
+      setSelectedAsset({
+        uri,
+        name,
+        mimeType,
+        size,
+        file: input.file,
+        lastModified: input.lastModified || input.file?.lastModified || Date.now(),
+        sha256,
+        md5,
+      });
+    } catch (error) {
+      if (__DEV__) console.log('Process file error', error);
+      showToast({ text1: 'Failed to process file' });
+    }
+  };
+
+  useEffect(
+    function processDroppedFile() {
+      if (payload?.file || payload?.uri)
+        processFile({
+          file: payload.file,
+          uri: payload.uri,
+        });
+    },
+    [payload]
+  );
+
   const handlePickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -34,49 +141,7 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
         multiple: false,
       });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        let sha256 = null;
-        let md5 = null;
-
-        if (!isWeb) {
-          const file = new File(result.assets[0].uri);
-          const info = file.info({ md5: true });
-          if (info.md5) md5 = info.md5 || null;
-        }
-
-        const arrayBuffer = await (async () => {
-          if (isWeb) return await result.assets[0].file?.arrayBuffer?.();
-          const file = new File(result.assets[0].uri);
-          return await file.arrayBuffer();
-        })();
-
-        if (arrayBuffer) {
-          if (!md5) md5 = SparkMD5.ArrayBuffer.hash(arrayBuffer);
-
-          if (!isWeb) {
-            const uint8 = new Uint8Array(arrayBuffer);
-            const digest = await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, uint8);
-            sha256 = Array.from(new Uint8Array(digest))
-              .map((b) => b.toString(16).padStart(2, '0'))
-              .join('');
-          } else {
-            sha256 = jsSha256(arrayBuffer);
-          }
-        }
-
-        if (!sha256 || !md5) {
-          showToast({
-            text1: 'Failed to compute hashes of the file',
-          });
-          return;
-        }
-
-        setSelectedAsset({
-          ...result.assets[0],
-          sha256,
-          md5,
-        });
-      }
+      if (!result.canceled && result.assets && result.assets.length > 0) await processFile(result.assets[0]);
     } catch (error) {
       if (__DEV__) console.log('Document pick error', error);
       showToast({ text1: 'Failed to pick file' });
@@ -130,6 +195,14 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
 
   const fileInfo = selectedAsset ? getFileTypeInfo(selectedAsset.name, selectedAsset.mimeType) : null;
 
+  const fileUploadProps = isWeb
+    ? {
+        onDragOver: handleDragOver,
+        onDragLeave: handleDragLeave,
+        onDrop: handleDrop,
+      }
+    : {};
+
   return (
     <ActionSheet
       id={sheetId}
@@ -160,7 +233,10 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
               chromeless
               aspectRatio={1}
               icon={<X size={16} />}
-              onPress={() => setSelectedAsset(null)}
+              onPress={() => {
+                setSelectedAsset(null);
+                SheetManager.update('storage-file-upload-sheet', { payload: undefined });
+              }}
               disabled={uploadMutation.isPending}
             />
           </XStack>
@@ -169,17 +245,18 @@ const StorageFileUploadSheet: React.FC<SheetProps<'storage-file-upload-sheet'>> 
             height={160}
             borderWidth={1}
             borderStyle="dashed"
-            borderColor="$borderColor"
-            bg="$color1"
+            borderColor={!isDragging ? '$borderColor' : '$color11'}
+            bg={!isDragging ? '$color1' : '$color3'}
             onPress={handlePickDocument}
             disabled={uploadMutation.isPending}
             items="center"
-            justify="center">
+            justify="center"
+            {...fileUploadProps}>
             <YStack items="center" gap="$2">
-              <FileUp size={24} color="$color10" />
+              {!isDragging ? <FileUp size={24} color="$color10" /> : <FileDown size={24} color="$color10" />}
 
               <Text color="$color10" fontSize="$3" fontWeight="500">
-                Tap to select a file
+                {!isDragging ? 'Tap to select a file' : 'Drop file'}
               </Text>
             </YStack>
           </Button>
