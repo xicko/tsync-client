@@ -4,6 +4,7 @@ import { useAlertSettings, useSaveAlertSettings } from '../../hooks/settings';
 import { useState } from 'react';
 import { showToast } from '@/utils/toast';
 import { Check, ArrowLeft } from '@tamagui/lucide-icons';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const AlertToggleSheet: React.FC<SheetProps<'alert-toggle-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
@@ -35,7 +36,7 @@ const AlertToggleSheet: React.FC<SheetProps<'alert-toggle-sheet'>> = ({ sheetId 
   return (
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: theme.background.val }}>
       <YStack p="$5" gap="$4">
-        <H6>Alert Settings</H6>
+        <SheetHeader title="Alert Settings" sheetId={sheetId} />
         <XStack items="center" justify="space-between" py="$2">
           <Text fontSize="$4">Enable Global Alerts</Text>
           <Switch

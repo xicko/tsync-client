@@ -4,6 +4,7 @@ import { Check } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
 import ActionSheet, { SheetProps, ScrollView, SheetManager } from 'react-native-actions-sheet';
 import { View, Text, Button, YGroup, XStack, H6, YStack, useTheme } from 'tamagui';
+import SheetHeader from './SheetHeader';
 
 const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet'>> = ({ sheetId, payload }) => {
   const devices = useDeviceStore((s) => s.devices);
@@ -27,9 +28,7 @@ const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet
   return (
     <ActionSheet id={sheetId} gestureEnabled={true} containerStyle={{ backgroundColor: theme.background.val }}>
       <View p={'$4'} gap={'$2'}>
-        <View>
-          <H6>Select Device</H6>
-        </View>
+        <SheetHeader title="Select Device" sheetId={sheetId} />
 
         <ScrollView style={{ maxHeight: 400, borderRadius: 8, overflow: 'hidden' }}>
           <YGroup gap={'$0.5'}>

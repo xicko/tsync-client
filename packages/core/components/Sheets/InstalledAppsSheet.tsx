@@ -7,6 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import { showToast } from '@/utils/toast';
 import { Platform, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import SheetHeader from './SheetHeader';
 
 interface AppInfo {
   name: string;
@@ -126,10 +127,7 @@ const InstalledAppsSheet: React.FC<SheetProps<'installed-apps-sheet'>> = ({ shee
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
       <YStack p="$5" gap="$3" maxH={dimensions.height * 0.84}>
-        <XStack justify="space-between" items="center">
-          <H6>Installed Applications</H6>
-          <Button size="$2" icon={X} aspectRatio={1} chromeless onPress={() => SheetManager.hide(sheetId)} />
-        </XStack>
+        <SheetHeader title="Installed Applications" sheetId={sheetId} />
 
         {displayError ? (
           <YStack p="$4" items="center" justify="center">

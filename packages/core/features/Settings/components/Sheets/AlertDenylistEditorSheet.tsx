@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { showToast } from '@/utils/toast';
 import { RefreshControl } from 'react-native';
 import { ArrowLeft, Check } from '@tamagui/lucide-icons';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet'>> = ({ sheetId }) => {
   const theme = useTheme();
@@ -75,9 +76,7 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
   return (
     <ActionSheet id={sheetId} gestureEnabled={false} containerStyle={{ backgroundColor: theme.background.val }}>
       <View p="$4" gap="$3" height={dimensions.height * 0.84}>
-        <View>
-          <H6>Alert Denylist (Muted Devices)</H6>
-        </View>
+        <SheetHeader title="Alert Denylist (Muted Devices)" sheetId={sheetId} />
 
         {isLoading && tailscaleDevices.length === 0 ? (
           <View flex={1} items="center" justify="center">

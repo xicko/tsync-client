@@ -4,6 +4,7 @@ import { useAdbDevices } from '@/features/Devices/hooks/adb.devices';
 import { Check, HelpCircle, Plug, Wifi, X } from '@tamagui/lucide-icons';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { useMemo, useState } from 'react';
+import SheetHeader from '@/components/Sheets/SheetHeader';
 
 const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifier-sheet'>> = ({ sheetId, payload }) => {
   const deviceId = payload?.selectedDeviceId!;
@@ -21,9 +22,7 @@ const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifie
   return (
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: theme.background.val }}>
       <View p={'$4'} gap={'$3'}>
-        <View>
-          <H6>Set adb device identifier</H6>
-        </View>
+        <SheetHeader title="Set adb device identifier" sheetId={sheetId} />
 
         <XStack width={'100%'} gap="$3">
           <Input
