@@ -92,7 +92,10 @@ declare module 'react-native-actions-sheet' {
     }>;
 
     'storage-file-upload-sheet': SheetDefinition<{
-      payload: {};
+      payload?: {
+        file?: File;
+        uri?: string;
+      };
     }>;
   }
 }

@@ -1,10 +1,10 @@
 import { useStorageFilesList } from '../hooks/storage';
 import { StorageFileCard } from '../components/StorageFileCard';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, RefreshControl } from 'react-native';
-import { useFocusEffect, useGlobalSearchParams } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { Button, ScrollView, Spinner, Text, View, YGroup } from 'tamagui';
-import { Upload } from '@tamagui/lucide-icons';
+import { FolderDown, Upload } from '@tamagui/lucide-icons';
 import { SheetManager } from 'react-native-actions-sheet';
 import { useSocketStore } from '@/store';
 import { StorageFile } from '../types/storage-file.interface';
@@ -14,6 +14,35 @@ import { InfiniteData } from '@tanstack/react-query';
 const StorageScreen = () => {
   const isWeb = Platform.OS === 'web';
   const socket = useSocketStore((s) => s.socket);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isWeb) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    SheetManager.show('storage-file-upload-sheet', {
+      payload: { file },
+    });
+  };
 
   const { data, refetch, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching, isLoading } =
     useStorageFilesList();
@@ -82,9 +111,17 @@ const StorageScreen = () => {
     }, [])
   );
 
+  const fileUploadProps = isWeb
+    ? {
+        onDragOver: handleDragOver,
+        onDragLeave: handleDragLeave,
+        onDrop: handleDrop,
+      }
+    : {};
+
   return (
     <View flex={1} bg="$background" gap="$3" px="$3">
-      <View flex={1} gap="$2">
+      <View flex={1} gap="$2" {...fileUploadProps}>
         <ScrollView
           onScroll={onScroll}
           scrollEventThrottle={16}
@@ -138,6 +175,22 @@ const StorageScreen = () => {
             opacity={0.3}
             pointerEvents="none">
             <Spinner color={'$color12'} size="large" />
+          </View>
+        ) : null}
+
+        {isDragging ? (
+          <View
+            pointerEvents="none"
+            background="$color1"
+            opacity={0.72}
+            position="absolute"
+            t={0}
+            b={0}
+            l={0}
+            r={0}
+            justify="center"
+            items="center">
+            <FolderDown size="$8" strokeWidth={1} />
           </View>
         ) : null}
       </View>
