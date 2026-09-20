@@ -7,6 +7,7 @@ import { PlatformIcon } from '@/components/PlatformIcon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import BatteryInfo from './BatteryInfo';
+import { trimHostname } from '@/utils';
 dayjs.extend(relativeTime);
 
 interface DeviceCardProps {
@@ -68,7 +69,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
 
           <YStack flex={1} mr="$3">
             <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
-              {item?.name?.split('.')[0]}
+              {trimHostname(item?.name)}
             </Text>
             <Text fontSize="$2" color="$color10" numberOfLines={1}>
               {item?.user}

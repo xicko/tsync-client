@@ -1,5 +1,5 @@
 import { useSocketStore } from '@/store';
-import { showToast } from '@/utils/toast';
+import { showToast, trimHostname } from '@/utils';
 import { PlatformIcon } from '@/components/PlatformIcon';
 import {
   ArrowDown,
@@ -199,7 +199,7 @@ const ShellScreen = () => {
           onPress={onDeviceSelector}>
           <XStack gap={'$2'} items="center">
             <PlatformIcon platform="android" size={18} />
-            <Text>{selectedDevice?.name?.split('.')[0] || 'Select Device'}</Text>
+            <Text>{trimHostname(selectedDevice?.name) || 'Select Device'}</Text>
           </XStack>
         </Button>
 

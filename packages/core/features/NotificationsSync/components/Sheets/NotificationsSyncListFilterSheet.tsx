@@ -10,6 +10,7 @@ import { Check } from '@tamagui/lucide-icons';
 import dayjs from 'dayjs';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { PlatformIcon } from '@/components/PlatformIcon';
+import { trimHostname } from '@/utils';
 
 const OS_ARRAY = [
   {
@@ -121,7 +122,7 @@ const NotificationsSyncListFilterSheet: React.FC<SheetProps<'notifications-sync-
                           }));
                         }
                       }}>
-                      <Text>{device?.name?.split('.')[0] || device.id}</Text>
+                      <Text>{trimHostname(device?.name) || device.id}</Text>
                     </Button>
                   ))}
               </XStack>

@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import ActionSheet, { SheetProps, ScrollView, SheetManager } from 'react-native-actions-sheet';
 import { View, Text, Button, YGroup, XStack, H6, YStack, useTheme } from 'tamagui';
 import SheetHeader from './SheetHeader';
+import { trimHostname } from '@/utils';
 
 const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet'>> = ({ sheetId, payload }) => {
   const devices = useDeviceStore((s) => s.devices);
@@ -44,7 +45,7 @@ const ShellDeviceSelectorSheet: React.FC<SheetProps<'shell-device-selector-sheet
                 }}>
                 <XStack justify={'space-between'} flex={1} items="center">
                   <YStack items={'flex-start'}>
-                    <H6>{device.name.split('.')[0] || device.name}</H6>
+                    <H6>{trimHostname(device.name)}</H6>
 
                     <Text>{constructAdbAddressText(device)}</Text>
                   </YStack>

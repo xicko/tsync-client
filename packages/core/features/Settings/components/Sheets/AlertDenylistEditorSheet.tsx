@@ -16,7 +16,7 @@ import { useAlertSettings, useSaveAlertSettings } from '../../hooks/settings';
 import { useDevices } from '@/features/Devices/hooks/devices';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { useState } from 'react';
-import { showToast } from '@/utils/toast';
+import { showToast, trimHostname } from '@/utils';
 import { RefreshControl } from 'react-native';
 import { ArrowLeft, Check } from '@tamagui/lucide-icons';
 import SheetHeader from '@/components/Sheets/SheetHeader';
@@ -99,7 +99,7 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
                     onPress={() => handleToggleDevice(device.id, !isDenylisted)}>
                     <YStack gap="$2">
                       <Text fontWeight="bold" self="flex-start">
-                        {device.name.split('.')[0]}
+                        {trimHostname(device.name)}
                       </Text>
                       <Text fontSize="$2" color="$color9" self="flex-start">
                         {device.os} • {device.addresses[0]}

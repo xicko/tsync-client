@@ -4,7 +4,7 @@ import { ArrowLeft, Plus } from '@tamagui/lucide-icons';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
 import { useState } from 'react';
 import { useCreateDenylistItem } from '../../hooks/denylist';
-import { showToast } from '@/utils/toast';
+import { showToast, trimHostname } from '@/utils';
 import { NotificationsSyncDenylistType } from '../../types/denylist.interface';
 import SheetHeader from '@/components/Sheets/SheetHeader';
 
@@ -95,7 +95,7 @@ const DenylistCreationSheet: React.FC<SheetProps<'denylist-creation-sheet'>> = (
                     setSelectedTailscaleId((prev) => (prev === device.id ? undefined : device.id));
                   }}
                   disabled={createMutation.isPending}>
-                  <Text>{device?.name?.split('.')[0] || device.id}</Text>
+                  <Text>{trimHostname(device?.name) || device.id}</Text>
                 </Button>
               ))}
           </XStack>
