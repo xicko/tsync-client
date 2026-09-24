@@ -17,96 +17,94 @@ private const val CHANNEL_NAME = "General Notifications NativeScheduler"
 private const val CONTINUOUS_ID = 313
 
 fun Context.showNotification(
-    title: String,
-    message: String,
-    icon: Int? = null,
+  title: String,
+  message: String,
+  icon: Int? = null,
 ) {
-    val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+  val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_DEFAULT,
-        )
-        manager.createNotificationChannel(channel)
-    }
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    val channel = NotificationChannel(
+      CHANNEL_ID,
+      CHANNEL_NAME,
+      NotificationManager.IMPORTANCE_DEFAULT,
+    )
+    manager.createNotificationChannel(channel)
+  }
 
-    val iconRes = icon ?: android.R.drawable.ic_menu_mylocation
+  val iconRes = icon ?: android.R.drawable.ic_menu_mylocation
 
-    val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setSmallIcon(iconRes)
-        .setContentTitle(title)
-        .setContentText(message)
-        .setAutoCancel(true)
-        .setColor("#007AFF".toColorInt())
-        .setColorized(true)
+  val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+    .setSmallIcon(iconRes)
+    .setContentTitle(title)
+    .setContentText(message)
+    .setAutoCancel(true)
+    .setColor("#007AFF".toColorInt())
+    .setColorized(true)
 
-    manager.notify(System.currentTimeMillis().toInt(), builder.build())
+  manager.notify(System.currentTimeMillis().toInt(), builder.build())
 }
 
 fun Context.showLiveNotification(
-    title: String,
-    message: String,
-    icon: Int? = null,
+  title: String,
+  message: String,
+  icon: Int? = null,
 ) {
-    val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+  val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_DEFAULT,
-        )
-        manager.createNotificationChannel(channel)
-    }
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    val channel = NotificationChannel(
+      CHANNEL_ID,
+      CHANNEL_NAME,
+      NotificationManager.IMPORTANCE_DEFAULT,
+    )
+    manager.createNotificationChannel(channel)
+  }
 
-    val iconRes = icon ?: android.R.drawable.sym_action_chat
+  val iconRes = icon ?: android.R.drawable.sym_action_chat
 
-    val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setSmallIcon(iconRes)
-        .setContentTitle(title)
-        .setContentText(message)
-        .setAutoCancel(true)
-        .setOngoing(true)
+  val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+    .setSmallIcon(iconRes)
+    .setContentTitle(title)
+    .setContentText(message)
+    .setAutoCancel(true)
+    .setOngoing(true)
 
-    manager.notify(CONTINUOUS_ID, builder.build())
+  manager.notify(CONTINUOUS_ID, builder.build())
 }
 
 fun Context.isNotificationListenerEnabled(): Boolean {
-    val enabled = Settings.Secure.getString(
-        contentResolver,
-        "enabled_notification_listeners"
-    ) ?: return false
+  val enabled = Settings.Secure.getString(
+    contentResolver,
+    "enabled_notification_listeners"
+  ) ?: return false
 
-    val component = ComponentName(
-        this,
-        NotificationListenerServiceImpl::class.java
-    ).flattenToString()
+  val component = ComponentName(
+    this,
+    NotificationListenerServiceImpl::class.java
+  ).flattenToString()
 
-    return enabled.contains(component)
+  return enabled.contains(component)
 }
 
 fun Context.startNotificationListenerService() {
-    if (isNotificationListenerEnabled()) return
+  if (isNotificationListenerEnabled()) return
 
-    val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
+  val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
+    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+  }
 
-    startActivity(intent)
+  startActivity(intent)
 }
 
 fun Context.blockNotificationsRoot(packageName: String? = null): Boolean {
-    val pn = packageName ?: this.packageName
+  val pn = packageName ?: this.packageName
 
-    if (pn.isEmpty()) return false
+  if (pn.isEmpty()) return false
 
-    val cmd = Shell.cmd("""
-        su -c appops set $pn POST_NOTIFICATION ignore
-    """.trimIndent())
+  val result = Shell.cmd("""
+    appops set $pn POST_NOTIFICATION ignore
+  """.trimIndent()).exec()
 
-    cmd.enqueue()
-
-    return true
+  return result.isSuccess
 }

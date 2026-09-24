@@ -199,12 +199,6 @@ const AppControlScreen = () => {
             onPress: () => getTsyncNative().openTS(),
           },
           {
-            label: 'Open Tailscale (Root)',
-            shown: Platform.OS === 'android' && isRooted,
-            icon: ExternalLink,
-            onPress: () => getTsyncNative().openTSRoot(),
-          },
-          {
             label: 'Connect Tailscale',
             shown: Platform.OS === 'android',
             icon: Plug,

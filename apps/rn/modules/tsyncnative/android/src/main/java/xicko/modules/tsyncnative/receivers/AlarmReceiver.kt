@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 
 class AlarmReceiver: BroadcastReceiver() {
-    override fun onReceive(ctx: Context?, p1: Intent?) {
-        Log.i("AlarmReceiver", "onReceive")
-    }
+  override fun onReceive(ctx: Context?, p1: Intent?) {
+    Log.i("AlarmReceiver", "onReceive")
+  }
 }
