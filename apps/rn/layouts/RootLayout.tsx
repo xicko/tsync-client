@@ -28,7 +28,7 @@ import { NotificationClickEvent } from 'react-native-onesignal';
 import { storage } from '@/utils/storage';
 import Constants from 'expo-constants';
 import { useStorageDependencyStore } from '@/features/Storage/store/storageDependencyStore';
-import { nativeUploadFn } from '../adapters';
+import { nativeDownloadFn, nativeUploadFn } from '../adapters';
 import * as SplashScreen from 'expo-splash-screen';
 
 (() => {
@@ -97,6 +97,7 @@ function RootLayoutContent() {
     if (!isWeb)
       useStorageDependencyStore.setState({
         uploadFn: nativeUploadFn,
+        downloadFn: nativeDownloadFn,
       });
   }, []);
 

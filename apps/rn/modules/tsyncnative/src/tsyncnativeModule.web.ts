@@ -40,8 +40,28 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   connectTS(): void {}
   disconnectTS(): void {}
 
+  getWirelessAdbPort(): number | null {
+    return null;
+  }
+  setWirelessAdbPort(port: number): boolean {
+    return false;
+  }
+  reloadWirelessAdbPort(): string | null {
+    return null;
+  }
+
   isRooted(): boolean {
     return false;
+  }
+  rebootDevice(): void {}
+  zipFileContent(filePath: string): string[] | null {
+    return null;
+  }
+  isZipMagiskModule(filePath: string): boolean {
+    return false;
+  }
+  installMagiskModuleViaPath(filePath: string): string | null {
+    return null;
   }
 }
 

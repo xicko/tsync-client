@@ -22,7 +22,15 @@ declare class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
   connectTS(): void;
   disconnectTS(): void;
 
+  getWirelessAdbPort(): number | null;
+  setWirelessAdbPort(port: number): boolean;
+  reloadWirelessAdbPort(): string | null;
+
   isRooted(): boolean;
+  rebootDevice(): void;
+  zipFileContent(filePath: string): string[] | null;
+  isZipMagiskModule(filePath: string): boolean;
+  installMagiskModuleViaPath(filePath: string): string | null;
 }
 
 export default requireNativeModule<tsyncnativeModule>('tsyncnative');

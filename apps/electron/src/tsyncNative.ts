@@ -37,5 +37,16 @@ export const tsyncNativeElectronImpl: TsyncNativeMethods = {
   connectTS: unsupported('connectTS'),
   disconnectTS: unsupported('disconnectTS'),
 
+  getWirelessAdbPort: () => null,
+  setWirelessAdbPort: () => false,
+  reloadWirelessAdbPort: () => null,
+
   isRooted: () => false,
+  rebootDevice: unsupported('rebootDevice'),
+  zipFileContent: () => null,
+  isZipMagiskModule: () => false,
+  installMagiskModuleViaPath: () => {
+    unsupported('installMagiskModuleViaPath')();
+    return null;
+  },
 };

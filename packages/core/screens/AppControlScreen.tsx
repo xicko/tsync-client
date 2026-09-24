@@ -32,6 +32,9 @@ import { Section } from '@/components';
 import { showToast } from '@/utils/toast';
 import { SheetManager } from 'react-native-actions-sheet';
 import * as Updates from 'expo-updates';
+import { fetchLatestRelease } from '@/features/Devices/controller/adbController';
+import { useStorageDependencyStore } from '@/features/Storage/store/storageDependencyStore';
+import * as Sharing from 'expo-sharing';
 
 interface AppControlRow {
   label: string;
@@ -275,6 +278,39 @@ const AppControlScreen = () => {
             icon: Smartphone,
             onPress: () => {
               SheetManager.show('installed-apps-sheet');
+            },
+          },
+          {
+            label: 'Wireless ADB Module (Magisk)',
+            shown: Platform.OS === 'android',
+            icon: Wifi,
+            onPress: async () => {
+              const latest = await fetchLatestRelease();
+
+              const fileName = latest?.assets[0]?.name;
+              const downloadUrl = latest?.assets[0]?.browser_download_url;
+              if (!downloadUrl || !fileName) return;
+
+              const downloadRes = await useStorageDependencyStore.getState().downloadFn({
+                url: downloadUrl,
+                fileName,
+              });
+
+              if (!downloadRes?.localFilePath) return;
+              const isRooted = getTsyncNative().isRooted();
+
+              if (isRooted) {
+                const isMagiskModule = getTsyncNative().isZipMagiskModule(downloadRes.localFilePath);
+                if (!isMagiskModule) return;
+
+                // TODO
+                return;
+              }
+
+              await Sharing.shareAsync(downloadRes.uri!, {
+                mimeType: 'application/zip',
+                dialogTitle: 'Install with Magisk',
+              });
             },
           },
         ],

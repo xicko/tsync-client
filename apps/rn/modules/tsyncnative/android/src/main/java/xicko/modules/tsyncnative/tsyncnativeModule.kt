@@ -145,8 +145,36 @@ class tsyncnativeModule : Module() {
       appContext.reactContext?.disconnectTailscale()
     }
 
+    Function("getWirelessAdbPort") {
+      getWirelessAdbPort()
+    }
+
+    Function("setWirelessAdbPort") { port: Int ->
+      setWirelessAdbPort(port)
+    }
+
+    Function("reloadWirelessAdbPort") {
+      reloadWirelessAdbPort()
+    }
+
     Function("isRooted") {
       isRooted()
+    }
+
+    Function("rebootDevice") {
+      rebootDevice()
+    }
+
+    Function("zipFileContent") { filePath: String ->
+      zipFileContent(filePath)
+    }
+
+    Function("isZipMagiskModule") { filePath: String ->
+      isZipMagiskModule(filePath)
+    }
+
+    Function("installMagiskModuleViaPath") { filePath: String ->
+      installMagiskModuleViaPath(filePath)
     }
   }
 }

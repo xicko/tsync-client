@@ -7,6 +7,7 @@ export * from './services/platform';
 // Controllers
 export * from './controller/sysController';
 export * from './features/Devices/controller/devicesController';
+export * from './features/Devices/controller/adbController';
 
 // Screens
 export { default as DevicesListScreen } from './features/Devices/screens/DevicesListScreen';
@@ -27,3 +28,7 @@ export * from './features/Devices/store/deviceStore';
 
 // Hooks
 export * from './features/Devices/hooks/devices';
+export * from './features/Devices/hooks/adb.devices';
+
+// Types
+export * from './features/Devices/types/github-release.interface';

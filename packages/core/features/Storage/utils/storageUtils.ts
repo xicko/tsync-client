@@ -19,6 +19,7 @@ import {
 } from '../constants/file-types.constant';
 import { FileTypeInfo } from '../types/storage-file.interface';
 import { UploadFileInput } from '../types/upload-file-input';
+import { DownloadFileInput, DownloadFileResult } from '../types/download-file-input';
 
 export async function uploadFn(url: string, fileInput: UploadFileInput): Promise<Response> {
   const formdata = new FormData();
@@ -37,6 +38,20 @@ export async function uploadFn(url: string, fileInput: UploadFileInput): Promise
     method: 'POST',
     body: formdata,
   });
+}
+
+export async function downloadFn(options: DownloadFileInput): Promise<DownloadFileResult | null> {
+  if (typeof document !== 'undefined') {
+    const link = document.createElement('a');
+    link.href = options.url;
+    link.download = options.fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return { uri: options.url, status: 200 };
+  }
+  return null;
 }
 
 export function formatFileSize(bytes?: number): string {

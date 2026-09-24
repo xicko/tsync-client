@@ -20,7 +20,15 @@ export interface TsyncNativeMethods {
   connectTS(): void;
   disconnectTS(): void;
 
+  getWirelessAdbPort(): number | null;
+  setWirelessAdbPort(port: number): boolean;
+  reloadWirelessAdbPort(): string | null;
+
   isRooted(): boolean;
+  rebootDevice(): void;
+  zipFileContent(filePath: string): string[] | null;
+  isZipMagiskModule(filePath: string): boolean;
+  installMagiskModuleViaPath(filePath: string): string | null;
 }
 
 const noopImpl: TsyncNativeMethods = {
@@ -43,7 +51,15 @@ const noopImpl: TsyncNativeMethods = {
   connectTS: () => {},
   disconnectTS: () => {},
 
+  getWirelessAdbPort: () => null,
+  setWirelessAdbPort: () => false,
+  reloadWirelessAdbPort: () => null,
+
   isRooted: () => false,
+  rebootDevice: () => {},
+  zipFileContent: () => null,
+  isZipMagiskModule: () => false,
+  installMagiskModuleViaPath: () => null,
 };
 
 interface TsyncNativeStoreState {
