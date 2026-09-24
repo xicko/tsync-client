@@ -1,1 +1,145 @@
-#
+<div align="center">
+
+# tsync-client ✧\*:･ﾟ
+
+**personal, tailscale-based cross-platform client for seamless device management.**
+
+[![Electron](https://img.shields.io/badge/Electron-43.2-47848F?logo=electron&logoColor=white&style=flat-square)](https://www.electronjs.org/)
+[![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black&style=flat-square)](https://reactnative.dev/)
+[![Expo](https://img.shields.io/badge/Expo-57.0-000020?logo=expo&logoColor=white&style=flat-square)](https://expo.dev/)
+[![Tamagui](https://img.shields.io/badge/Tamagui-UI-FF69B4?style=flat-square)](https://tamagui.dev/)
+[![Tailscale](https://img.shields.io/badge/Tailscale-Networking-4B23D1?logo=tailscale&logoColor=white&style=flat-square)](https://tailscale.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white&style=flat-square)](https://www.typescriptlang.org/)
+
+</div>
+
+---
+
+## features
+
+- **real-time status**: access device statuses instantly across your tailnet.
+- **notifications**: multi-channel push alerts via onesignal & ntfy.
+- **android power user**:
+  - enforce 99.9% tailscale uptime for reliable connectivity.
+  - aggressive tailscale reconnection (root-assisted).
+  - remote control (via adb).
+  - terminal command execution (via adb).
+- **battery telemetry sync**: track & sync battery status across android and macos devices.
+- **wake-on-lan**: remotely wake windows devices using [local-wol](https://github.com/xicko/local-wol).
+- **cron jobs**: schedule reminders, day counters, and health checks.
+- **broadcast**: send system-wide messages to all tailnet devices.
+- **notifications stream & sync**: stream and mirror android notifications across tailnet real-time.
+- **storage**: centralised file storage, upload & download files.
+
+---
+
+## requirements
+
+- **network**: a working [tailscale](https://tailscale.com) setup.
+- **backend**: [tsync-server](https://github.com/xicko/tsync-server) instance.
+- **push services**: [onesignal](https://onesignal.com/) account & [firebase](https://firebase.google.com/) project.
+
+## environment setup
+
+### mobile (react native)
+
+create a `.env` file in `apps/rn`:
+
+| variable                      | description              |
+| :---------------------------- | :----------------------- |
+| `EXPO_PUBLIC_BASE_API_URL`    | tsync-server endpoint    |
+| `EXPO_PUBLIC_ONESIGNAL_APPID` | onesignal application id |
+
+### desktop (electron)
+
+create a `.env` file in `apps/electron`:
+
+| variable            | description           |
+| :------------------ | :-------------------- |
+| `VITE_BASE_API_URL` | tsync-server endpoint |
+
+---
+
+## project startup
+
+first, install dependencies from the monorepo root:
+
+```bash
+pnpm install
+```
+
+### mobile (react native / expo)
+
+1. **navigate to app directory**
+
+   ```bash
+   cd apps/rn
+   ```
+
+2. **prebuild native directories**
+
+   ```bash
+   npx expo prebuild
+   ```
+
+3. **ios setup (macOS only)**
+
+   ```bash
+   npx pod-install
+   ```
+
+4. **launch application**
+
+   ```bash
+   # android native
+   npx expo run:android
+
+   # ios native
+   npx expo run:ios
+
+   # start expo metro server
+   npx expo start
+   ```
+
+### desktop (electron)
+
+1. **navigate to app directory**
+
+   ```bash
+   cd apps/electron
+   ```
+
+2. **launch in development mode**
+
+   ```bash
+   pnpm start
+   ```
+
+3. **package & distribute**
+
+   ```bash
+   # package executable
+   pnpm run package
+
+   # build platform installers
+   pnpm run make
+   ```
+
+---
+
+## platforms & deployment
+
+| platform | target | method |
+| :--- | :--- | :--- |
+| **android** | mobile | native build `.apk`
+| **ios** | mobile | native build `.ipa` (tested on [vphone vm](https://github.com/Lakr233/vphone-cli) only) |
+| **web** | browser | `react-native-web` exported static site served via Docker |
+| **desktop** | macOS (`arm64`, `x64`) | standalone macOS app via Electron Forge |
+
+> [!NOTE]
+> desktop is currently tested and built exclusively for macOS (`arm64` and `x64`). Windows, Linux and other desktop builds are not yet implemented or tested.
+
+---
+
+> [!NOTE]
+> this project is subject to changes; expect bugs and missing features while in active development.
