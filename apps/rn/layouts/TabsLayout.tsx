@@ -128,7 +128,7 @@ export default function TabsLayout() {
   );
   useEffect(
     function handleHeadless() {
-      if (isHeadless) getTsyncNative().connectTSRoot();
+      if (isHeadless) getTsyncNative().connectTS();
     },
     [isHeadless]
   );

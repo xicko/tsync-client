@@ -10,29 +10,32 @@ export const tsyncNativeElectronImpl: TsyncNativeMethods = {
   reloadApp: async () => {
     window.location.reload();
   },
-  isIgnoringBatteryOptimizations: () => true,
-  disableBatteryOptimizations: unsupported('disableBatteryOptimizations'),
-  startConnectionWorker: () => {},
-  startBatteryWorker: () => {},
-  openTS: unsupported('openTS'),
-  connectTS: unsupported('connectTS'),
-  disconnectTS: unsupported('disconnectTS'),
-  isRooted: () => false,
-  openTSRoot: unsupported('openTSRoot'),
-  connectTSRoot: () => {},
-  disableOptimizationsRoot: () => {
-    unsupported('disableOptimizationsRoot')();
-    return false;
-  },
-  blockNotificationsRoot: () => {
-    unsupported('blockNotificationsRoot')();
-    return false;
-  },
-  retrieveBatteryStatus: async () => getBatteryStatus(),
-  isNotificationListenerEnabled: () => false,
-  startNotificationListenerService: unsupported('startNotificationListenerService'),
   retrieveApps: () => {
     unsupported('retrieveApps')();
     return '[]';
   },
+
+  isIgnoringBatteryOptimizations: () => true,
+  disableBatteryOptimizations: unsupported('disableBatteryOptimizations'),
+  disableOptimizationsRoot: () => {
+    unsupported('disableOptimizationsRoot')();
+    return false;
+  },
+  retrieveBatteryStatus: async () => getBatteryStatus(),
+
+  startConnectionWorker: () => {},
+  startBatteryWorker: () => {},
+
+  isNotificationListenerEnabled: () => false,
+  startNotificationListenerService: unsupported('startNotificationListenerService'),
+  blockNotificationsRoot: () => {
+    unsupported('blockNotificationsRoot')();
+    return false;
+  },
+
+  openTS: unsupported('openTS'),
+  connectTS: unsupported('connectTS'),
+  disconnectTS: unsupported('disconnectTS'),
+
+  isRooted: () => false,
 };

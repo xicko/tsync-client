@@ -64,12 +64,25 @@ class tsyncnativeModule : Module() {
       Runtime.getRuntime().exit(0);
     }
 
+    Function("retrieveApps") {
+      appContext.reactContext?.retrieveApps() ?: ""
+    }
+
     Function("isIgnoringBatteryOptimizations") {
       appContext.reactContext?.isIgnoringBatteryOptimizations() ?: false
     }
 
     Function("disableBatteryOptimizations") { packageName: String? ->
       appContext.reactContext?.disableBatteryOptimizations(packageName)
+    }
+
+    Function("disableOptimizationsRoot") { packageName: String? ->
+      appContext.reactContext?.disableOptimizationsRoot(packageName) ?: false
+    }
+
+    AsyncFunction("retrieveBatteryStatus") Coroutine { ->
+      val result = appContext.reactContext?.retrieveBatteryStatus() ?: return@Coroutine null
+      "${result.level}:${result.isPlugged}:${result.timestamp}"
     }
 
     Function("startConnectionWorker") {
@@ -108,6 +121,18 @@ class tsyncnativeModule : Module() {
       if (ctx != null) WorkManager.getInstance(ctx).enqueue(batteryOneTimeRequest)
     }
 
+    Function("isNotificationListenerEnabled") {
+      appContext.reactContext?.isNotificationListenerEnabled() ?: false
+    }
+
+    Function("startNotificationListenerService") {
+      appContext.reactContext?.startNotificationListenerService()
+    }
+
+    Function("blockNotificationsRoot") { packageName: String? ->
+      appContext.reactContext?.blockNotificationsRoot(packageName) ?: false
+    }
+
     Function("openTS") {
       appContext.reactContext?.openTailscale()
     }
@@ -122,39 +147,6 @@ class tsyncnativeModule : Module() {
 
     Function("isRooted") {
       isRooted()
-    }
-
-    Function("openTSRoot") {
-      openTailscaleRoot()
-    }
-
-    Function("connectTSRoot") {
-      connectTailscaleRoot()
-    }
-
-    Function("disableOptimizationsRoot") { packageName: String? ->
-      appContext.reactContext?.disableOptimizationsRoot(packageName) ?: false
-    }
-
-    Function("blockNotificationsRoot") { packageName: String? ->
-      appContext.reactContext?.blockNotificationsRoot(packageName) ?: false
-    }
-
-    AsyncFunction("retrieveBatteryStatus") Coroutine { ->
-      val result = appContext.reactContext?.retrieveBatteryStatus() ?: return@Coroutine null
-      "${result.level}:${result.isPlugged}:${result.timestamp}"
-    }
-
-    Function("isNotificationListenerEnabled") {
-      appContext.reactContext?.isNotificationListenerEnabled() ?: false
-    }
-
-    Function("startNotificationListenerService") {
-      appContext.reactContext?.startNotificationListenerService()
-    }
-
-    Function("retrieveApps") {
-      appContext.reactContext?.retrieveApps() ?: ""
     }
   }
 }

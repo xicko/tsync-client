@@ -2,42 +2,48 @@ import { create } from 'zustand';
 
 export interface TsyncNativeMethods {
   reloadApp(): Promise<void>;
+  retrieveApps(): string;
+
   isIgnoringBatteryOptimizations(): boolean;
   disableBatteryOptimizations(packageName?: string): void;
+  disableOptimizationsRoot(packageName?: string): boolean;
+  retrieveBatteryStatus(): Promise<string | null>;
+
   startConnectionWorker(): void;
   startBatteryWorker(): void;
+
+  isNotificationListenerEnabled(): boolean;
+  startNotificationListenerService(): void;
+  blockNotificationsRoot(packageName?: string): boolean;
+
   openTS(): void;
   connectTS(): void;
   disconnectTS(): void;
+
   isRooted(): boolean;
-  openTSRoot(): void;
-  connectTSRoot(): void;
-  disableOptimizationsRoot(packageName?: string): boolean;
-  blockNotificationsRoot(packageName?: string): boolean;
-  retrieveBatteryStatus(): Promise<string | null>;
-  isNotificationListenerEnabled(): boolean;
-  startNotificationListenerService(): void;
-  retrieveApps(): string;
 }
 
 const noopImpl: TsyncNativeMethods = {
   reloadApp: () => Promise.resolve(),
+  retrieveApps: () => '[]',
+
   isIgnoringBatteryOptimizations: () => true,
   disableBatteryOptimizations: () => {},
+  disableOptimizationsRoot: () => false,
+  retrieveBatteryStatus: () => Promise.resolve(null),
+
   startConnectionWorker: () => {},
   startBatteryWorker: () => {},
+
+  isNotificationListenerEnabled: () => false,
+  startNotificationListenerService: () => {},
+  blockNotificationsRoot: () => false,
+
   openTS: () => {},
   connectTS: () => {},
   disconnectTS: () => {},
+
   isRooted: () => false,
-  openTSRoot: () => {},
-  connectTSRoot: () => {},
-  disableOptimizationsRoot: () => false,
-  blockNotificationsRoot: () => false,
-  retrieveBatteryStatus: () => Promise.resolve(null),
-  isNotificationListenerEnabled: () => false,
-  startNotificationListenerService: () => {},
-  retrieveApps: () => '[]',
 };
 
 interface TsyncNativeStoreState {
@@ -50,5 +56,4 @@ export const useTsyncNativeStore = create<TsyncNativeStoreState>((set) => ({
   setImpl: (impl) => set({ impl }),
 }));
 
-// Non-reactive accessor for call sites that just invoke a method.
 export const getTsyncNative = (): TsyncNativeMethods => useTsyncNativeStore.getState().impl;

@@ -15,56 +15,55 @@ import io.ktor.http.HttpStatusCode
 import xicko.modules.tsyncnative.extensions.connectTailscale
 import xicko.modules.tsyncnative.extensions.showNotification
 
-
 class ConnectionWorker(
-    context: Context,
-    params: WorkerParameters
+  context: Context,
+  params: WorkerParameters
 ): CoroutineWorker(context, params) {
-    override suspend fun doWork(): Result {
-        val client = HttpClient(CIO) {
-            install(HttpTimeout) {
-                connectTimeoutMillis = 3500L
-                requestTimeoutMillis = 3500L
-            }
-        }
-
-        var isConnected: Boolean = false
-
-        try {
-            MMKV.initialize(this.applicationContext)
-            val mmkv = MMKV.mmkvWithID("root", MMKV.MULTI_PROCESS_MODE)
-            val domain = mmkv.decodeString("domain", null) ?: throw Exception("domain not found")
-
-            val response = client.get("$domain/api/sys/ping")
-            isConnected = response.status == HttpStatusCode.OK && response.bodyAsText() == "true"
-            applicationContext.showNotification(
-                "tsync Connection Service",
-                if (isConnected) "Tailscale connected" else "Tailscale disconnected",
-                android.R.drawable.ic_dialog_info
-            )
-
-            Result.success()
-        } catch (e: Exception) {
-            isConnected = false
-            applicationContext.showNotification(
-                "tsync Connection Service",
-                "error: ${e.message}",
-                android.R.drawable.stat_notify_error
-            )
-
-            Result.retry()
-        } finally {
-            client.close()
-        }
-
-        if (!isConnected) {
-            applicationContext.connectTailscale()
-            sleep(1500L)
-            applicationContext.connectTailscale()
-        }
-
-        Log.i("ConnectionWorker", "doWork $isConnected")
-
-        return Result.success()
+  override suspend fun doWork(): Result {
+    val client = HttpClient(CIO) {
+      install(HttpTimeout) {
+        connectTimeoutMillis = 3500L
+        requestTimeoutMillis = 3500L
+      }
     }
+
+    var isConnected: Boolean = false
+
+    try {
+      MMKV.initialize(this.applicationContext)
+      val mmkv = MMKV.mmkvWithID("root", MMKV.MULTI_PROCESS_MODE)
+      val domain = mmkv.decodeString("domain", null) ?: throw Exception("domain not found")
+
+      val response = client.get("$domain/api/sys/ping")
+      isConnected = response.status == HttpStatusCode.OK && response.bodyAsText() == "true"
+      applicationContext.showNotification(
+        "tsync Connection Service",
+        if (isConnected) "Tailscale connected" else "Tailscale disconnected",
+        android.R.drawable.ic_dialog_info
+      )
+
+      Result.success()
+    } catch (e: Exception) {
+      isConnected = false
+      applicationContext.showNotification(
+        "tsync Connection Service",
+        "error: ${e.message}",
+        android.R.drawable.stat_notify_error
+      )
+
+      Result.retry()
+    } finally {
+      client.close()
+    }
+
+    if (!isConnected) {
+      applicationContext.connectTailscale()
+      sleep(1500L)
+      applicationContext.connectTailscale()
+    }
+
+    Log.i("ConnectionWorker", "doWork $isConnected")
+
+    return Result.success()
+  }
 }

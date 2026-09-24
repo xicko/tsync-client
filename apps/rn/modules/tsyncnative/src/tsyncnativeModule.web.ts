@@ -7,15 +7,34 @@ type tsyncnativeModuleEvents = {
 };
 
 class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
-  reloadApp() {
+  async reloadApp(): Promise<void> {
     window.location.reload();
   }
+  retrieveApps(): string {
+    return '[]';
+  }
 
-  isIgnoringBatteryOptimizations() {}
-  disableBatteryOptimizations() {}
+  isIgnoringBatteryOptimizations(): boolean {
+    return true;
+  }
+  disableBatteryOptimizations(packageName?: string): void {}
+  disableOptimizationsRoot(packageName?: string): boolean {
+    return false;
+  }
+  async retrieveBatteryStatus(): Promise<string | null> {
+    return null;
+  }
 
   startConnectionWorker(): void {}
   startBatteryWorker(): void {}
+
+  isNotificationListenerEnabled(): boolean {
+    return false;
+  }
+  startNotificationListenerService(): void {}
+  blockNotificationsRoot(packageName?: string): boolean {
+    return false;
+  }
 
   openTS(): void {}
   connectTS(): void {}
@@ -23,27 +42,6 @@ class tsyncnativeModule extends NativeModule<tsyncnativeModuleEvents> {
 
   isRooted(): boolean {
     return false;
-  }
-  openTSRoot(): void {}
-  connectTSRoot(): void {}
-
-  disableOptimizationsRoot(packageName?: string): boolean {
-    return false;
-  }
-  blockNotificationsRoot(packageName?: string): boolean {
-    return false;
-  }
-  retrieveBatteryStatus(): string | null {
-    return null;
-  }
-
-  isNotificationListenerEnabled(): boolean {
-    return false;
-  }
-  startNotificationListenerService(): void {}
-
-  retrieveApps(): string {
-    return '';
   }
 }
 
