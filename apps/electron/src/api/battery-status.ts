@@ -8,14 +8,13 @@ export async function fetchBatteryStatus(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
-    const response = await fetch(`${domainAddress}/api/devices/${tailscaleId}/update-battery-status`, {
+    const response = await fetch(`${domainAddress}/api/devices/${tailscaleId}/battery`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
-    const data = (await response.json()) as { success: boolean };
-    return data.success;
+    return response.ok;
   } catch (error) {
     console.error('Failed to update battery status:', error);
     return false;

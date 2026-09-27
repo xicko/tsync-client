@@ -32,7 +32,7 @@ export async function toggleCronState(cron: CronJobInfo): Promise<boolean> {
   const domain = useDomainStore.getState().domainAddress;
   try {
     const res = await fetch(`${domain}/api/crons/${cron.name}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         cronExpression: cron.cronExpression,

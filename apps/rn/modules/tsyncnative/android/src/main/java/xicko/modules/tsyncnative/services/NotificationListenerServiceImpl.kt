@@ -141,9 +141,9 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
         )
         scope.launch {
           Log.i("NotificationListenerServiceImpl", "sending notification to server ${thisTailscaleDevice.id}")
-          Log.i("NotificationListenerServiceImpl", "domain: ${"$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/receive-notification"}")
+          Log.i("NotificationListenerServiceImpl", "domain: ${"$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/notifications"}")
           try {
-            val response = client.post("$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/receive-notification") {
+            val response = client.post("$domain/api/notifications-sync/devices/${thisTailscaleDevice.id}/notifications") {
               contentType(ContentType.Application.Json)
               setBody(body)
             }
