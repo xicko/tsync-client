@@ -1,0 +1,36 @@
+node_modules/
+.expo/
+dist/
+/apps/rn/android/
+/apps/rn/ios/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+expo-env.d.ts
+
+# macOS
+.DS_Store
+*.DS_Store
+
+# Temporary files
+.metro-health-check*
+
+*.apk
+*.ipa
+
+.tamagui/
+.vscode/
+
+# Build artifacts
+dist.zip
+*.zip
+*.tar.gz
+*.rar
+
+# TypeScript cache
+*.tsbuildinfo
