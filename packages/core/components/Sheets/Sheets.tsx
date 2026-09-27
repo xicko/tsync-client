@@ -13,6 +13,7 @@ import { NotificationsSyncDenylist } from '@/features/NotificationsSync/types/de
 import DenylistCreationSheet from '@/features/NotificationsSync/components/Sheets/DenylistCreationSheet';
 import AlertToggleSheet from '../../features/Settings/components/Sheets/AlertToggleSheet';
 import AlertDenylistEditorSheet from '../../features/Settings/components/Sheets/AlertDenylistEditorSheet';
+import WolSettingsSheet from '../../features/Settings/components/Sheets/WolSettingsSheet';
 import InstalledAppsSheet from './InstalledAppsSheet';
 import StorageFileActionsSheet from '../../features/Storage/components/Sheets/StorageFileActionsSheet';
 import StorageFileUploadSheet from '../../features/Storage/components/Sheets/StorageFileUploadSheet';
@@ -81,6 +82,10 @@ declare module 'react-native-actions-sheet' {
       payload: {};
     }>;
 
+    'wol-settings-sheet': SheetDefinition<{
+      payload: {};
+    }>;
+
     'installed-apps-sheet': SheetDefinition<{
       payload: {};
     }>;
@@ -116,6 +121,7 @@ export const Sheets = () => {
         'denylist-creation-sheet': DenylistCreationSheet,
         'alert-toggle-sheet': AlertToggleSheet,
         'alert-denylist-editor-sheet': AlertDenylistEditorSheet,
+        'wol-settings-sheet': WolSettingsSheet,
         'installed-apps-sheet': InstalledAppsSheet,
         'storage-file-actions-sheet': StorageFileActionsSheet,
         'storage-file-upload-sheet': StorageFileUploadSheet,
