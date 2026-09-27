@@ -3,6 +3,7 @@ const {
   withProjectBuildGradle,
   withSettingsGradle,
   withDangerousMod,
+  withGradleProperties,
 } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
@@ -87,10 +88,32 @@ const withAutolinkingCacheCleaner = (config) => {
   ]);
 };
 
+/**
+ * @param {ExpoConfig} config
+ */
+const withTsyncNativeGradleProperties = (config) => {
+  return withGradleProperties(config, (cfg) => {
+    const jvmArg = cfg.modResults.find(
+      (item) => item.type === 'property' && item.key === 'org.gradle.jvmargs'
+    );
+    if (jvmArg) {
+      jvmArg.value = '-Xmx4096m -XX:MaxMetaspaceSize=1024m';
+    } else {
+      cfg.modResults.push({
+        type: 'property',
+        key: 'org.gradle.jvmargs',
+        value: '-Xmx4096m -XX:MaxMetaspaceSize=1024m',
+      });
+    }
+    return cfg;
+  });
+};
+
 const withTsyncNativePlugin = (config) => {
   config = withTsyncNativeProjectBuildGradle(config);
   config = withAutolinkingLockFiles(config);
   config = withAutolinkingCacheCleaner(config);
+  config = withTsyncNativeGradleProperties(config);
   return config;
 };
 
