@@ -1,4 +1,9 @@
-import { getAlertSettings, saveAlertSettings } from '@/features/Settings/controller/settingsController';
+import {
+  getAlertSettings,
+  saveAlertSettings,
+  getWolSettings,
+  saveWolSettings,
+} from '@/features/Settings/controller/settingsController';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useAlertSettings() {
@@ -22,6 +27,31 @@ export function useSaveAlertSettings() {
     mutationFn: saveAlertSettings,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alert-settings'] });
+    },
+  });
+}
+
+export function useWolSettings() {
+  return useQuery({
+    queryKey: ['wol-settings'],
+    queryFn: async () => {
+      const data = await getWolSettings();
+      if (!data) return null;
+      return data;
+    },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+  });
+}
+
+export function useSaveWolSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: saveWolSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wol-settings'] });
     },
   });
 }

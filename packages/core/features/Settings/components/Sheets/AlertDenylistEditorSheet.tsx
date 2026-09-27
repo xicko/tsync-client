@@ -36,7 +36,7 @@ const AlertDenylistEditorSheet: React.FC<SheetProps<'alert-denylist-editor-sheet
   const saveMutation = useSaveAlertSettings();
 
   const [localDenylist, setLocalDenylist] = useState<string[] | null>(null);
-  const denylist = localDenylist ?? alertSettings?.data?.denylist ?? [];
+  const denylist = localDenylist ?? alertSettings?.denylist ?? [];
 
   const handleToggleDevice = (deviceId: string, isChecked: boolean) => {
     const nextDenylist = isChecked

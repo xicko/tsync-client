@@ -1,10 +1,10 @@
 import { useThemeStore } from '@/store/themeStore';
 import { SheetManager } from 'react-native-actions-sheet';
 import { Button, Text, View, YGroup } from 'tamagui';
-import { useAlertSettings } from '../hooks/settings';
+import { useAlertSettings, useWolSettings } from '../hooks/settings';
 import { Section } from '@/components';
 import { Platform } from 'react-native';
-import { Ban, Check, Fingerprint, Globe, Key, Minus, Palette, X } from '@tamagui/lucide-icons';
+import { Ban, Check, Computer, Fingerprint, Globe, Minus, Palette, X } from '@tamagui/lucide-icons';
 import { canLocalAuthenticate, localAuthenticate } from '../utils/authUtils';
 import { useAuthStore } from '@/store';
 import { showToast } from '@/utils';
@@ -18,7 +18,8 @@ const SettingsScreen = () => {
   const localAuth = useAuthStore((s) => s.localAuth);
   const setLocalAuth = useAuthStore((s) => s.setLocalAuth);
 
-  const { data } = useAlertSettings();
+  const { data: alertData } = useAlertSettings();
+  const { data: wolData } = useWolSettings();
 
   const [canLocalAuth, setCanLocalAuth] = useState<boolean>(false);
   const onLocalAuth = async () => {
@@ -64,20 +65,28 @@ const SettingsScreen = () => {
           <Button
             justify="flex-start"
             icon={(() => {
-              if (data?.data === undefined) return Minus;
-              return data.data?.enabled ? Check : X;
+              if (!alertData) return Minus;
+              return alertData.enabled ? Check : X;
             })()}
             onPress={() => SheetManager.show('alert-toggle-sheet')}>
             <Text>
               {(() => {
-                if (data?.data === undefined) return 'No data';
-                return data.data?.enabled ? 'Enabled' : 'Disabled';
+                if (!alertData) return 'No data';
+                return alertData.enabled ? 'Enabled' : 'Disabled';
               })()}
             </Text>
           </Button>
 
           <Button justify="flex-start" icon={Ban} onPress={() => SheetManager.show('alert-denylist-editor-sheet')}>
             <Text>Denylist</Text>
+          </Button>
+        </YGroup>
+      </Section>
+
+      <Section label="Wake-on-LAN">
+        <YGroup gap="$0.5">
+          <Button justify="flex-start" icon={Computer} onPress={() => SheetManager.show('wol-settings-sheet')}>
+            <Text>{wolData ? `${wolData.enabled ? 'Enabled' : 'Disabled'} - Port: ${wolData.port}` : 'Configure'}</Text>
           </Button>
         </YGroup>
       </Section>
