@@ -50,12 +50,12 @@ class BatteryWorker(
 
       val batteryStatus = this.applicationContext.retrieveBatteryStatus() ?: throw Exception("batteryStatus not found")
 
-      val response = client.patch("$domain/api/devices/${thisTailscaleDevice.id}/update-battery-status") {
+      val response = client.patch("$domain/api/devices/${thisTailscaleDevice.id}/battery") {
         contentType(ContentType.Application.Json)
         setBody(batteryStatus)
       }
 
-      Log.i("BatteryWorker", "update-battery-status response: ${response.bodyAsText()}")
+      Log.i("BatteryWorker", "battery response: ${response.bodyAsText()}")
 
       Result.success()
     } catch (e: Exception) {

@@ -9,9 +9,8 @@ export async function pingServer(): Promise<boolean> {
 
   try {
     const response = await fetch(`${domain}/api/sys/ping`, { signal: controller.signal });
-    const data = await response.text();
 
-    return data === 'true' && response.status === 200;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
@@ -29,9 +28,10 @@ export async function getIpServer(): Promise<string | null> {
 
   try {
     const response = await fetch(`${domain}/api/sys/ip`, { signal: controller.signal });
-    const data = await response.text();
+    if (!response.ok) return null;
+    const data = (await response.json()) as { ip: string };
 
-    return data;
+    return data.ip;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return null;
