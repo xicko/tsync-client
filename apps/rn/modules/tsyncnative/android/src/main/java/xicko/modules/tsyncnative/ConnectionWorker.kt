@@ -10,7 +10,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import xicko.modules.tsyncnative.extensions.connectTailscale
 import xicko.modules.tsyncnative.extensions.showNotification
@@ -35,7 +34,7 @@ class ConnectionWorker(
       val domain = mmkv.decodeString("domain", null) ?: throw Exception("domain not found")
 
       val response = client.get("$domain/api/sys/ping")
-      isConnected = response.status == HttpStatusCode.OK && response.bodyAsText() == "true"
+      isConnected = response.status == HttpStatusCode.OK
       applicationContext.showNotification(
         "tsync Connection Service",
         if (isConnected) "Tailscale connected" else "Tailscale disconnected",

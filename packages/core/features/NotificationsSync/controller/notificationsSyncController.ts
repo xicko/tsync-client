@@ -11,7 +11,7 @@ export async function receiveNotification(tailscaleId: string, body: CollectedNo
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const response = await fetch(`${domain}/api/notifications-sync/devices/${tailscaleId}/receive-notification`, {
+    const response = await fetch(`${domain}/api/notifications-sync/devices/${tailscaleId}/notifications`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,9 +20,8 @@ export async function receiveNotification(tailscaleId: string, body: CollectedNo
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
@@ -49,7 +48,6 @@ export interface CollectedNotificationItemType extends CollectedNotification {
   icon?: string;
 }
 export interface NotificationsSyncListResponseType {
-  success: boolean;
   pagination?: {
     total: number;
     limit: number;
@@ -65,7 +63,7 @@ export async function getNotificationsList(
   options: GetNotificationsListOptions
 ): Promise<NotificationsSyncListResponseType | null> {
   const url = useDomainStore.getState().domainAddress;
-  const domain = new URL(`${url}/api/notifications-sync/list`);
+  const domain = new URL(`${url}/api/notifications-sync`);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -94,11 +92,10 @@ export async function getNotificationsList(
       signal: controller.signal,
     });
 
-    const data = await response.json();
-
     clearTimeout(timeoutId);
+    if (!response.ok) return null;
 
-    return data;
+    return await response.json();
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return null;
@@ -113,7 +110,6 @@ export interface GetDenylistListOptions {
   page?: number;
 }
 export interface DenylistListResponseType {
-  success: boolean;
   pagination?: {
     total: number;
     limit: number;
@@ -127,7 +123,7 @@ export interface DenylistListResponseType {
 }
 export async function getDenylistList(options: GetDenylistListOptions): Promise<DenylistListResponseType | null> {
   const url = useDomainStore.getState().domainAddress;
-  const domain = new URL(`${url}/api/notifications-sync/denylist/list`);
+  const domain = new URL(`${url}/api/notifications-sync/denylist`);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -143,11 +139,10 @@ export async function getDenylistList(options: GetDenylistListOptions): Promise<
       signal: controller.signal,
     });
 
-    const data = await response.json();
-
     clearTimeout(timeoutId);
+    if (!response.ok) return null;
 
-    return data;
+    return await response.json();
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return null;
@@ -164,7 +159,7 @@ export async function createDenylistItem(body: {
   tailscaleId?: string;
 }): Promise<boolean> {
   const url = useDomainStore.getState().domainAddress;
-  const domain = `${url}/api/notifications-sync/denylist/action/create`;
+  const domain = `${url}/api/notifications-sync/denylist`;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -178,9 +173,8 @@ export async function createDenylistItem(body: {
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
@@ -192,7 +186,7 @@ export async function createDenylistItem(body: {
 // =========================================
 export async function deleteDenylistItem(id: string): Promise<boolean> {
   const url = useDomainStore.getState().domainAddress;
-  const domain = `${url}/api/notifications-sync/denylist/action/delete/${id}`;
+  const domain = `${url}/api/notifications-sync/denylist/${id}`;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -205,9 +199,8 @@ export async function deleteDenylistItem(id: string): Promise<boolean> {
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;

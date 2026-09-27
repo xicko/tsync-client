@@ -16,9 +16,9 @@ export async function getConnectedAdbDevices(): Promise<string[]> {
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as string[];
     clearTimeout(timeoutId);
-    return data;
+    if (!response.ok) return [];
+    return (await response.json()) as string[];
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return [];
@@ -45,9 +45,8 @@ export async function setAdbDeviceIdentifier(tailscaleId: string, identifier: st
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;

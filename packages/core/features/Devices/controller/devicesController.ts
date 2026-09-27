@@ -34,9 +34,8 @@ export async function wakeOnLan(tailscaleId: string): Promise<boolean> {
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data?.success || false;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
@@ -63,9 +62,8 @@ export async function setWindowsMacAddress(tailscaleId: string, macAddress: stri
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
@@ -81,7 +79,7 @@ export async function updateBatteryStatus(tailscaleId: string, body: BatteryStat
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const response = await fetch(`${domain}/api/devices/${tailscaleId}/update-battery-status`, {
+    const response = await fetch(`${domain}/api/devices/${tailscaleId}/battery`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -90,9 +88,8 @@ export async function updateBatteryStatus(tailscaleId: string, body: BatteryStat
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { success: boolean };
     clearTimeout(timeoutId);
-    return data.success;
+    return response.ok;
   } catch (error) {
     if (error instanceof Error && __DEV__) console.log(error.message);
     return false;
