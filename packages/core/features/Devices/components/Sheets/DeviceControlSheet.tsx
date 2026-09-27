@@ -1,12 +1,13 @@
-import { Button, H6, Text, View, XGroup, YStack, useTheme } from 'tamagui';
+import { Button, H6, Text, View, XGroup, XStack, YStack, Switch, useTheme } from 'tamagui';
 import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-sheet';
+import { useState } from 'react';
 import { setAdbDeviceIdentifier } from '@/features/Devices/controller/adbController';
 import { showToast } from '@/utils/toast';
 import * as Linking from 'expo-linking';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { ClipboardCopy, IdCard, Power, ScreenShare, Terminal } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
-import { wakeOnLan, setWindowsMacAddress } from '@/features/Devices/controller/devicesController';
+import { wakeOnLan, setWindowsMacAddress, setBatterySync } from '@/features/Devices/controller/devicesController';
 import { eventEmit } from '@/utils';
 import * as Clipboard from 'expo-clipboard';
 import { PlatformIcon } from '@/components/PlatformIcon';
@@ -14,6 +15,20 @@ import { PlatformIcon } from '@/components/PlatformIcon';
 const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ sheetId, payload }) => {
   const device = payload?.device!;
   const tamaguiTheme = useTheme();
+
+  const [batterySync, setBatterySyncState] = useState<boolean>(device.batterySync ?? true);
+
+  const onToggleBatterySync = async (val: boolean) => {
+    setBatterySyncState(val);
+    const res = await setBatterySync(device.id, val);
+    if (res) {
+      showToast({ text1: `Battery sync ${val ? 'enabled' : 'disabled'}` });
+      eventEmit.emit('refreshDevices');
+    } else {
+      setBatterySyncState(!val);
+      showToast({ text1: 'Failed to update battery sync' });
+    }
+  };
 
   const onWOL = async () => {
     const tailscaleId = device.id;
@@ -203,6 +218,15 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
             }}>
             Open Shell
           </Button>
+        ) : null}
+
+        {device.os === 'android' || device.os === 'macOS' ? (
+          <XStack items="center" justify="space-between" px="$2" py="$2">
+            <Text>Battery sync</Text>
+            <Switch themeInverse={batterySync} checked={batterySync} onCheckedChange={onToggleBatterySync}>
+              <Switch.Thumb animation="medium" />
+            </Switch>
+          </XStack>
         ) : null}
 
         <View height={100} />

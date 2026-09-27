@@ -73,6 +73,32 @@ export async function setWindowsMacAddress(tailscaleId: string, macAddress: stri
 }
 
 // =========================================
+export async function setBatterySync(tailscaleId: string, enabled: boolean): Promise<boolean> {
+  const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(`${domain}/api/devices/${tailscaleId}/battery-sync`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ enabled }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch (error) {
+    if (error instanceof Error && __DEV__) console.log(error.message);
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// =========================================
 export async function updateBatteryStatus(tailscaleId: string, body: BatteryStatus): Promise<boolean> {
   const domain = (await import('@/store')).useDomainStore.getState().domainAddress;
   const controller = new AbortController();
