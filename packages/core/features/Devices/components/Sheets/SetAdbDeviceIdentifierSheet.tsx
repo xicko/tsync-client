@@ -63,7 +63,7 @@ const SetAdbDeviceIdentifierSheet: React.FC<SheetProps<'set-adb-device-identifie
                   <Text>{device}</Text>
 
                   {/* Recommended / likely */}
-                  {thisDevice && thisDevice.addresses.some((address) => device.includes(address)) && (
+                  {thisDevice && thisDevice.addresses.some((address) => device.split(':')[0] === address) && (
                     <HelpCircle strokeWidth={1.2} size={20} />
                   )}
                 </XStack>
