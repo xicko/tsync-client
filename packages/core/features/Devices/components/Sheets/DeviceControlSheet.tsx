@@ -1,4 +1,4 @@
-import { Button, H6, Text, View, XGroup, XStack, YStack, Switch, useTheme } from 'tamagui';
+import { Button, H6, Text, View, XGroup, XStack, YStack, Switch, useTheme, YGroup } from 'tamagui';
 import ActionSheet, { SheetManager, SheetProps } from 'react-native-actions-sheet';
 import { useState } from 'react';
 import { setAdbDeviceIdentifier } from '@/features/Devices/controller/adbController';
@@ -11,6 +11,7 @@ import { wakeOnLan, setWindowsMacAddress, setBatterySync } from '@/features/Devi
 import { eventEmit } from '@/utils';
 import * as Clipboard from 'expo-clipboard';
 import { PlatformIcon } from '@/components/PlatformIcon';
+import { onCopy } from '@/utils/clipboard';
 
 const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ sheetId, payload }) => {
   const device = payload?.device!;
@@ -138,16 +139,6 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
       });
   };
 
-  const onCopyIp = async (ip: string) => {
-    const res = await Clipboard.setStringAsync(ip);
-    if (res) {
-      showToast({
-        text1: 'IP copied to clipboard',
-      });
-      SheetManager.hide(sheetId);
-    }
-  };
-
   return (
     <ActionSheet id={sheetId} gestureEnabled containerStyle={{ backgroundColor: tamaguiTheme.background.val }}>
       <View p="$5" gap="$3">
@@ -177,48 +168,50 @@ const DeviceControlSheet: React.FC<SheetProps<'device-control-sheet'>> = ({ shee
           </YStack>
         </XGroup>
 
-        <Button icon={ClipboardCopy} justify={'flex-start'} onPress={() => onCopyIp(device.addresses[0])}>
-          <Text>Copy IP</Text>
-        </Button>
-
-        {/* Wake on LAN Windows */}
-        {device.os === 'windows' && !device.isActive && (
-          <Button icon={Power} justify={'flex-start'} onPress={onWOL}>
-            <Text>Wake on LAN</Text>
+        <YGroup gap="$0.5">
+          <Button icon={ClipboardCopy} justify={'flex-start'} onPress={() => onCopy(device.addresses[0])}>
+            <Text>Copy IP</Text>
           </Button>
-        )}
 
-        {device.os === 'macOS' || device.os === 'windows' ? (
-          <Button icon={ScreenShare} justify={'flex-start'} onPress={onRemoteDesktop}>
-            <Text>Open Remote Desktop</Text>
-          </Button>
-        ) : null}
+          {/* Wake on LAN Windows */}
+          {device.os === 'windows' && !device.isActive && (
+            <Button icon={Power} justify={'flex-start'} onPress={onWOL}>
+              <Text>Wake on LAN</Text>
+            </Button>
+          )}
 
-        {device.os === 'android' ? (
-          <Button icon={IdCard} justify={'flex-start'} onPress={onSetAdbDeviceIdentifier}>
-            Set adb device identifier
-          </Button>
-        ) : null}
+          {device.os === 'macOS' || device.os === 'windows' ? (
+            <Button icon={ScreenShare} justify={'flex-start'} onPress={onRemoteDesktop}>
+              <Text>Open Remote Desktop</Text>
+            </Button>
+          ) : null}
 
-        {device.os === 'windows' ? (
-          <Button icon={IdCard} justify={'flex-start'} onPress={onSetWindowsMacAddress}>
-            Set Windows MAC address
-          </Button>
-        ) : null}
+          {device.os === 'android' ? (
+            <Button icon={IdCard} justify={'flex-start'} onPress={onSetAdbDeviceIdentifier}>
+              Set adb device identifier
+            </Button>
+          ) : null}
 
-        {device.os === 'android' ? (
-          <Button
-            icon={Terminal}
-            justify={'flex-start'}
-            onPress={() => {
-              router.push({
-                pathname: '/tabs/shell',
-              });
-              SheetManager.hideAll(sheetId);
-            }}>
-            Open Shell
-          </Button>
-        ) : null}
+          {device.os === 'windows' ? (
+            <Button icon={IdCard} justify={'flex-start'} onPress={onSetWindowsMacAddress}>
+              Set Windows MAC address
+            </Button>
+          ) : null}
+
+          {device.os === 'android' ? (
+            <Button
+              icon={Terminal}
+              justify={'flex-start'}
+              onPress={() => {
+                router.push({
+                  pathname: '/tabs/shell',
+                });
+                SheetManager.hideAll(sheetId);
+              }}>
+              Open Shell
+            </Button>
+          ) : null}
+        </YGroup>
 
         {device.os === 'android' || device.os === 'macOS' ? (
           <XStack items="center" justify="space-between" px="$2" py="$2">
