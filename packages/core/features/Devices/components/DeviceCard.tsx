@@ -1,13 +1,13 @@
 import { DeviceListItem } from '@shared/types';
-import { OpaqueColorValue, Platform, TouchableOpacity } from 'react-native';
+import { GestureResponderEvent, OpaqueColorValue, Platform, TouchableOpacity } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import { Text, View, XStack, Button, YStack, GetThemeValueForKey, useTheme } from 'tamagui';
-import { Hotel, Zap } from '@tamagui/lucide-icons';
+import { Battery, BatteryWarning, Hotel, PlugZap, Usb, Zap } from '@tamagui/lucide-icons';
 import { PlatformIcon } from '@/components/PlatformIcon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import BatteryInfo from './BatteryInfo';
-import { trimHostname } from '@/utils';
+import { onCopy, trimHostname } from '@/utils';
 dayjs.extend(relativeTime);
 
 interface DeviceCardProps {
@@ -32,6 +32,16 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
   const primaryIp = item?.addresses?.[0] ?? '—';
   const hasRoutes = item?.enabledRoutes?.length > 0;
 
+  const onControl = (e: GestureResponderEvent) => {
+    e.stopPropagation();
+
+    SheetManager.show('device-control-sheet', {
+      payload: {
+        device: item,
+      },
+    });
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.75}
@@ -54,7 +64,9 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
         p="$3"
         bg="$color1"
         borderWidth={1}
-        borderColor="$borderColor">
+        borderColor="$borderColor"
+        opacity={item.isActive ? 1 : 0.64}
+        hoverStyle={!item.isActive ? { opacity: 1 } : undefined}>
         {/* Header row */}
         <XStack justify="space-between" items="center" mb="$2" gap={'$2'}>
           <View width={24} height={24} m="$2">
@@ -65,19 +77,32 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
                 <Hotel size={12} />
               </View>
             ) : null}
+
+            {item?.batterySync === false ? (
+              <View position="absolute" t={-6} r={-8} z={100}>
+                <PlugZap size={12} />
+              </View>
+            ) : null}
           </View>
 
           <YStack flex={1} mr="$3">
             <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
               {trimHostname(item?.name)}
             </Text>
+
             <Text fontSize="$2" color="$color10" numberOfLines={1}>
               {item?.user}
             </Text>
           </YStack>
 
           {/* Active badge */}
-          <View rounded="$2" px="$2" py="$1" bg={item?.isActive ? '$green3' : '$color4'}>
+          <View
+            rounded="$2"
+            px="$2"
+            py="$1"
+            bg={item?.isActive ? '$green3' : '$color4'}
+            height={'auto'}
+            self="flex-start">
             <Text fontSize="$1" fontWeight="400" color={item?.isActive ? '$green10' : '$color10'}>
               {item?.isActive ? 'ONLINE' : 'OFFLINE'}
             </Text>
@@ -86,25 +111,31 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
 
         {/* Info row */}
         <XStack gap="$3" flexWrap="wrap">
-          <InfoChip label="IP" value={primaryIp} />
+          <InfoChip label="IP" value={primaryIp} canCopy />
           <InfoChip label="OS" value={item?.os} />
           <InfoChip label="Seen" value={formatLastSeen(item?.lastSeen)} />
         </XStack>
 
-        {item?.os === 'android' && (
-          <InfoChip
-            label="ADB identifier"
-            value={(() => {
-              const address = item.addresses[0];
-              const port = item?.androidConfig?.adb?.port;
-              if (!address || !port) return 'Not set';
-              return `${address}:${port}`;
-            })()}
-          />
-        )}
+        {(() => {
+          if (item?.os !== 'android') return null;
+          const label = 'ADB identifier';
+          const address = item.addresses[0];
+          if (!address) return null;
+          const port = item?.androidConfig?.adb?.port;
+          const didSet = typeof port === 'number';
+          if (!didSet) {
+            return <InfoChip label={label} value={'Not set'} />;
+          }
+
+          return <InfoChip label={label} value={`${address}:${port}`} canCopy />;
+        })()}
 
         {item?.os === 'windows' && (
-          <InfoChip label="Windows MAC address" value={item?.windowsConfig?.macAddress || 'Not set'} />
+          <InfoChip
+            label="Windows MAC address"
+            value={item?.windowsConfig?.macAddress || 'Not set'}
+            canCopy={!!item?.windowsConfig?.macAddress}
+          />
         )}
 
         {/* Battery info */}
@@ -121,18 +152,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
 
         {isWeb && <View style={{ flexGrow: 1 }} />}
 
-        <Button
-          size="$3"
-          mt="$4"
-          onPress={(e) => {
-            e.stopPropagation();
-
-            SheetManager.show('device-control-sheet', {
-              payload: {
-                device: item,
-              },
-            });
-          }}>
+        <Button size="$3" mt="$4" icon={Usb} onPress={onControl}>
           <Text>Control</Text>
         </Button>
       </View>
@@ -145,15 +165,28 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ item, onPress }) => {
 interface InfoChipProps {
   label: string;
   value: string;
+  canCopy?: boolean;
 }
 
-function InfoChip({ label, value }: InfoChipProps) {
+function InfoChip({ label, value, canCopy }: InfoChipProps) {
   return (
     <XStack gap="$1" items="center">
       <Text fontSize="$2" color="$color9">
         {label}:
       </Text>
-      <Text fontSize="$2" fontWeight="500">
+
+      <Text
+        fontSize="$2"
+        fontWeight="500"
+        hoverStyle={canCopy ? { color: '$blue9' } : null}
+        onPress={
+          canCopy
+            ? (e) => {
+                e.stopPropagation();
+                onCopy(value);
+              }
+            : undefined
+        }>
         {value}
       </Text>
     </XStack>

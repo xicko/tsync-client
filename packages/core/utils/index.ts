@@ -3,3 +3,4 @@ export * from './query';
 export * from './storage';
 export * from './toast';
 export * from './device';
+export * from './clipboard';
