@@ -1,4 +1,4 @@
-import { Button, ScrollView, View, YGroup, YStack } from 'tamagui';
+import { Button, ScrollView, Switch, Text, View, YGroup, YStack } from 'tamagui';
 import { getTsyncNative } from '@/store/tsyncNativeStore';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -12,6 +12,8 @@ import {
 import {
   AppWindow,
   Battery,
+  Bell,
+  BellOff,
   ExternalLink,
   Key,
   MessageSquare,
@@ -35,6 +37,7 @@ import * as Updates from 'expo-updates';
 import { fetchLatestRelease } from '@/features/Devices/controller/adbController';
 import { useStorageDependencyStore } from '@/features/Storage/store/storageDependencyStore';
 import * as Sharing from 'expo-sharing';
+import { useWorkerStore } from '@/store';
 
 interface AppControlRow {
   label: string;
@@ -42,6 +45,7 @@ interface AppControlRow {
     label: string;
     shown: boolean;
     disabled?: boolean;
+    toggle?: boolean;
     icon: React.ComponentType<IconProps>;
     onPress: () => void | Promise<void>;
   }[];
@@ -49,6 +53,8 @@ interface AppControlRow {
 
 const AppControlScreen = () => {
   const isRooted = useDeviceStore((s) => s.isRooted);
+  const showConnectionNotifications = useWorkerStore((s) => s.config.connection.showNotifications);
+  const toggleWorkerNotifications = useWorkerStore((s) => s.toggleWorkerNotifications);
 
   const [isIgnoringBatteryOptimizations, setIsIgnoringBatteryOptimizations] = useState<boolean>(false);
 
@@ -216,16 +222,30 @@ const AppControlScreen = () => {
         ],
       },
       {
-        label: 'Services',
+        label: 'Connection Worker',
         options: [
           {
-            label: 'Start Connection Service/Worker',
+            label: `Start Worker`,
             shown: Platform.OS === 'android',
             icon: Wifi,
             onPress: () => {
               getTsyncNative().startConnectionWorker();
             },
           },
+          {
+            label: `Show Notifications`,
+            shown: Platform.OS === 'android',
+            toggle: showConnectionNotifications,
+            icon: showConnectionNotifications ? Bell : BellOff,
+            onPress: () => {
+              toggleWorkerNotifications('connection');
+            },
+          },
+        ],
+      },
+      {
+        label: 'Other Services',
+        options: [
           {
             label: 'Start Battery Service/Worker',
             shown: Platform.OS === 'android',
@@ -323,6 +343,7 @@ const AppControlScreen = () => {
     haveLocationAccess,
     isNotificationListenerEnabled,
     isRooted,
+    showConnectionNotifications,
   ]);
 
   return (
@@ -335,16 +356,33 @@ const AppControlScreen = () => {
             <Section label={row.label} key={row.label}>
               <YGroup gap={'$0.5'}>
                 {row.options.map((opt) => {
+                  const isToggle = opt.toggle !== undefined;
                   if (!opt.shown) return null;
                   return (
                     <Button
                       key={opt.label}
                       justify="flex-start"
+                      items="center"
+                      width="100%"
+                      height="auto"
+                      px="$4"
+                      py="$3"
                       icon={opt.icon}
                       disabled={opt.disabled}
                       opacity={opt.disabled ? 0.5 : 1}
                       onPress={opt.onPress}>
-                      {opt.label}
+                      <Text flex={isToggle ? 1 : undefined}>{opt.label}</Text>
+
+                      {isToggle ? (
+                        <Switch
+                          ml="auto"
+                          size={'$3'}
+                          themeInverse={opt.toggle}
+                          checked={opt.toggle}
+                          onCheckedChange={opt.onPress}>
+                          <Switch.Thumb animation="medium" />
+                        </Switch>
+                      ) : null}
                     </Button>
                   );
                 })}

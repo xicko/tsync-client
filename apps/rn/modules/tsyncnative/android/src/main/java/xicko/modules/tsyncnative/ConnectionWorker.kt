@@ -11,8 +11,9 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import xicko.modules.tsyncnative.data.WorkerType
 import xicko.modules.tsyncnative.extensions.connectTailscale
-import xicko.modules.tsyncnative.extensions.showNotification
+import xicko.modules.tsyncnative.extensions.showWorkerNotification
 
 class ConnectionWorker(
   context: Context,
@@ -35,22 +36,20 @@ class ConnectionWorker(
 
       val response = client.get("$domain/api/sys/ping")
       isConnected = response.status == HttpStatusCode.OK
-      applicationContext.showNotification(
+      applicationContext.showWorkerNotification(
+        WorkerType.CONNECTION,
         "tsync Connection Service",
         if (isConnected) "Tailscale connected" else "Tailscale disconnected",
         android.R.drawable.ic_dialog_info
       )
-
-      Result.success()
     } catch (e: Exception) {
       isConnected = false
-      applicationContext.showNotification(
+      applicationContext.showWorkerNotification(
+        WorkerType.CONNECTION,
         "tsync Connection Service",
         "error: ${e.message}",
         android.R.drawable.stat_notify_error
       )
-
-      Result.retry()
     } finally {
       client.close()
     }
