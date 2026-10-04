@@ -7,14 +7,51 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.toColorInt
+import com.tencent.mmkv.MMKV
 import com.topjohnwu.superuser.Shell
+import xicko.modules.tsyncnative.data.WorkerType
+import xicko.modules.tsyncnative.data.WorkersConfig
 import xicko.modules.tsyncnative.services.NotificationListenerServiceImpl
 
 private const val CHANNEL_ID = "basic_notify_channel_1"
 private const val CHANNEL_NAME = "General Notifications NativeScheduler"
 private const val CONTINUOUS_ID = 313
+
+fun Context.getWorkersConfig(): WorkersConfig {
+  return try {
+    MMKV.initialize(this)
+    val mmkv = MMKV.mmkvWithID("root", MMKV.MULTI_PROCESS_MODE)
+    val jsonStr = mmkv.decodeString("workers_config", null)
+    if (jsonStr != null) {
+      JsonProvider.json.decodeFromString<WorkersConfig>(jsonStr)
+    } else {
+      WorkersConfig()
+    }
+  } catch (e: Exception) {
+    Log.w("NotificationExtensions", "Failed to read workers_config: ${e.message}")
+    WorkersConfig()
+  }
+}
+
+fun Context.showWorkerNotification(
+  worker: WorkerType,
+  title: String,
+  message: String,
+  icon: Int? = null,
+) {
+  val config = getWorkersConfig()
+  val shouldNotify = when (worker) {
+    WorkerType.CONNECTION -> config.connection.showNotifications
+    WorkerType.BATTERY -> config.battery.showNotifications
+  }
+
+  if (!shouldNotify) return
+
+  showNotification(title, message, icon)
+}
 
 fun Context.showNotification(
   title: String,
