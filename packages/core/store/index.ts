@@ -4,3 +4,4 @@ export * from './storageStore';
 export * from './themeStore';
 export * from './authStore';
 export * from './tsyncNativeStore';
+export * from './workerStore';
