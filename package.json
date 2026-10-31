@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "npx tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "web:docker": "docker compose up -d --build web",
+    "web:docker:logs": "docker compose logs -f web"
   },
   "keywords": [],
   "author": "",

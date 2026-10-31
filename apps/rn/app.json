@@ -93,7 +93,8 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -119,8 +120,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f4113b22-7041-46e5-810f-4a897670b1f4"
+        "projectId": "9abd0683-f60a-4c10-81b8-b955025a8918"
       }
-    }
+    },
+    "owner": "goose-ventures"
   }
 }
