@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+	"github.com/xicko/tsync/internal/routes"
 )
 
 func main() {
@@ -41,14 +42,14 @@ func main() {
 		req := HealthCheck{
 			Status: "ok",
 		}
-		jsonData, err := json.Marshal(req)
-		if err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-		}
+		jsonData, _ := json.Marshal(req)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
 	})
+
+	r.Mount("/api", routes.New())
 
 	port := os.Getenv("PORT")
 	if port == "" {
