@@ -4,14 +4,12 @@ import { useSocketStore } from '@/store';
 import { RefreshCcw, Settings } from '@tamagui/lucide-icons';
 import { Button, useTheme } from 'tamagui';
 import { useDeviceStore } from '@/features/Devices/store/deviceStore';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { SheetManager } from 'react-native-actions-sheet';
 import CustomTabBar from '@/components/CustomTabBar';
 import { useDevices } from '@/features/Devices/hooks/devices';
 import { getTsyncNative } from '@/store/tsyncNativeStore';
 import { AppState, Platform } from 'react-native';
-import * as Device from 'expo-device';
-import * as Constants from 'expo-constants';
 import { eventEmit, showToast } from '@/utils';
 import DevicesHeaderRight from '@/features/Devices/components/Header/SocketConnectionHeader';
 import { pingServer } from '@/controller/sysController';
@@ -118,21 +116,6 @@ export default function TabsLayout() {
   // UI styles
   const headerTitleStyle = { ...headerTextStyle, color: tamaguiTheme.color.val };
   const headerStyle = { backgroundColor: tamaguiTheme.background.val };
-
-  // Block UI if headless
-  const [isHeadless] = useState<boolean>(
-    (() => {
-      const HEADLESS = Constants.default.expoConfig?.extra?.EXPO_PUBLIC_HEADLESS_STR;
-      return !!(HEADLESS && String(Device.modelName).toLowerCase().includes(HEADLESS)) && Platform.OS === 'android';
-    })()
-  );
-  useEffect(
-    function handleHeadless() {
-      if (isHeadless) getTsyncNative().connectTS();
-    },
-    [isHeadless]
-  );
-  if (isHeadless) return null;
 
   return (
     <Tabs
