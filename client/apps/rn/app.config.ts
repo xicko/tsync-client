@@ -27,7 +27,6 @@ export default ({ config }: { config: ExpoConfig }) => {
     android: androidConfig,
     extra: {
       ...config?.extra,
-      EXPO_PUBLIC_HEADLESS_STR: process.env.EXPO_PUBLIC_HEADLESS_STR || '',
       EXPO_PUBLIC_BASE_API_URL: process.env.EXPO_PUBLIC_BASE_API_URL || '',
       EXPO_PUBLIC_ONESIGNAL_APPID: process.env.EXPO_PUBLIC_ONESIGNAL_APPID || '',
     },
