@@ -1,0 +1,16 @@
+node_modules/
+dist/
+
+.DS_Store
+*.DS_Store
+
+*.env
+.env
+
+.tamagui/
+.vscode/
+
+dist.zip
+*.zip
+*.tar.gz
+*.rar

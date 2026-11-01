@@ -201,7 +201,7 @@ const showOrOpenMainWindow = () => {
     mainWindow?.show();
     mainWindow?.focus();
   }
-}
+};
 
 powerMonitor.on('suspend', () => setAppState('background'));
 powerMonitor.on('lock-screen', () => setAppState('background'));
@@ -291,4 +291,4 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => showOrOpenMainWindow());
 
-app.on('before-quit', () => isQuitting = true);
+app.on('before-quit', () => (isQuitting = true));
