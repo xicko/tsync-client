@@ -21,9 +21,19 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}))
 	slog.SetDefault(logger)
 
-	err := godotenv.Load()
-	if err != nil {
-		slog.Error("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		slog.Info("no .env file, using environment")
+	}
+
+	hostIp := os.Getenv("HOST_IP")
+	if hostIp == "" {
+		slog.Error("HOST_IP not set")
+		os.Exit(1)
+	}
+
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		slog.Error("SERVER_PORT not set")
 		os.Exit(1)
 	}
 
@@ -51,17 +61,11 @@ func main() {
 
 	r.Mount("/api", routes.New())
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		slog.Error("PORT not set")
-		os.Exit(1)
-	}
-
 	server := &http.Server{
-		Addr:         ":" + port,
+		Addr:         hostIp + ":" + port,
 		Handler:      r,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 0,
 		IdleTimeout:  120 * time.Second,
 	}
 
