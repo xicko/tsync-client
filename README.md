@@ -43,7 +43,7 @@
 
 ### mobile (react native)
 
-create a `.env` file in `apps/rn`:
+create a `.env` file in `client/apps/rn`:
 
 | variable                      | description              |
 | :---------------------------- | :----------------------- |
@@ -52,7 +52,7 @@ create a `.env` file in `apps/rn`:
 
 ### desktop (electron)
 
-create a `.env` file in `apps/electron`:
+create a `.env` file in `client/apps/electron`:
 
 | variable            | description           |
 | :------------------ | :-------------------- |
